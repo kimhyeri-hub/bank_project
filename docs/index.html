@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian AI: The Last Fortress — 프로젝트 발표</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1f2937;
+    --border: #374151;
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --cyan: #06b6d4;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+  .nav-brand {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-light);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(6,182,212,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    color: var(--primary-light);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.4rem;
+  }
+  .hero-title .gradient {
+    background: linear-gradient(135deg, #818cf8 0%, #06b6d4 50%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .hero-quote {
+    font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+    color: var(--text-dim);
+    max-width: 680px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.8rem;
+    text-align: center;
+    min-width: 140px;
+  }
+  .hero-stat .num {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  .hero-stat .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    animation: bounce 2s infinite;
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+  .section-desc {
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 3rem;
+    font-size: 0.98rem;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ── PROBLEM ── */
+  .problem-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card.red::before { background: var(--red); }
+  .stat-card.orange::before { background: var(--orange); }
+  .stat-card.cyan::before { background: var(--cyan); }
+  .stat-card.purple::before { background: var(--primary); }
+  .stat-card .big {
+    font-size: 2.2rem;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .stat-card.red .big { color: var(--red); }
+  .stat-card.orange .big { color: var(--orange); }
+  .stat-card.cyan .big { color: var(--cyan); }
+  .stat-card.purple .big { color: var(--primary-light); }
+  .stat-card .desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+  .problem-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .problem-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .problem-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .problem-icon { font-size: 1.8rem; margin-bottom: 0.7rem; }
+  .problem-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .problem-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── VISION ── */
+  .vision-statement {
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.08));
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 16px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .vision-statement p {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    line-height: 2;
+    color: var(--text-muted);
+  }
+  .vision-statement strong { color: var(--text); }
+
+  .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .value-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .value-card:hover { transform: translateY(-3px); }
+  .value-card.v1:hover { border-color: var(--primary); }
+  .value-card.v2:hover { border-color: var(--cyan); }
+  .value-card.v3:hover { border-color: var(--orange); }
+  .value-card.v4:hover { border-color: var(--green); }
+  .value-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .value-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+  .value-card.v1 h3 { color: var(--primary-light); }
+  .value-card.v2 h3 { color: var(--cyan); }
+  .value-card.v3 h3 { color: var(--orange); }
+  .value-card.v4 h3 { color: var(--green); }
+  .value-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ── WBS ── */
+  .wbs-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+  .wbs-area-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .wbs-area-btn:hover { border-color: var(--primary); }
+  .wbs-area-btn.active { border-color: var(--primary-light); background: rgba(99,102,241,0.08); }
+  .wbs-area-btn .area-num { font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .wbs-area-btn .area-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+  .progress-fill.done { background: var(--green); }
+  .progress-fill.active { background: var(--cyan); }
+  .progress-fill.todo { background: var(--text-dim); }
+  .area-pct { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+  .wbs-detail { display: none; }
+  .wbs-detail.visible { display: block; }
+  .wbs-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .wbs-group-header {
+    padding: 1rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .wbs-items { padding: 0.5rem 0; }
+  .wbs-item {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+  }
+  .wbs-item:hover { background: rgba(255,255,255,0.02); }
+  .wbs-item .item-id { color: var(--text-dim); font-size: 0.75rem; min-width: 3rem; font-family: monospace; }
+  .wbs-item .item-name { flex: 1; color: var(--text-muted); }
+  .wbs-item .item-days { color: var(--text-dim); font-size: 0.75rem; white-space: nowrap; }
+  .badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+  }
+  .badge-done { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-active { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .badge-todo { background: rgba(107,114,128,0.15); color: var(--text-dim); }
+
+  /* ── ARCHITECTURE ── */
+  .arch-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; }
+  .arch-section h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--primary-light); }
+  .arch-section .arch-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+  .mermaid { display: flex; justify-content: center; }
+  .mermaid svg { max-width: 100%; height: auto; }
+
+  .adr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
+  .adr-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+  }
+  .adr-tag { font-size: 0.7rem; color: var(--cyan); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .adr-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .adr-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--green), var(--cyan), var(--primary), var(--text-dim));
+    border-radius: 1px;
+  }
+  .week-item {
+    position: relative;
+    padding: 0 0 2rem 1.5rem;
+  }
+  .week-item::before {
+    content: '';
+    position: absolute;
+    left: -1.675rem;
+    top: 0.4rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+  .week-item.done::before { background: var(--green); border-color: var(--green); }
+  .week-item.active::before { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(6,182,212,0.2); }
+  .week-item.todo::before { background: var(--bg); border-color: var(--border); }
+  .week-item.milestone::before { background: var(--orange); border-color: var(--orange); border-radius: 3px; transform: rotate(45deg); top: 0.3rem; }
+  .week-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
+  .week-num { font-size: 0.8rem; font-weight: 700; color: var(--text-dim); min-width: 3.5rem; }
+  .week-title { font-size: 0.95rem; font-weight: 600; }
+  .week-tasks { list-style: none; margin-top: 0.5rem; }
+  .week-tasks li {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    padding: 0.2rem 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+  .week-tasks li::before { content: '›'; position: absolute; left: 0; color: var(--text-dim); }
+
+  /* ── TARGET USERS ── */
+  .user-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+  .user-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.06em; border-bottom: 1px solid var(--border); font-weight: 600; text-transform: uppercase; }
+  .user-table td { padding: 0.85rem 1rem; font-size: 0.87rem; border-bottom: 1px solid rgba(55,65,81,0.4); vertical-align: top; }
+  .user-table td:first-child { font-size: 1.4rem; }
+  .user-table td:nth-child(2) { font-weight: 500; }
+  .user-table td:last-child { color: var(--cyan); font-size: 0.82rem; }
+  .user-table tr:last-child td { border-bottom: none; }
+  .user-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* ── TECH STACK ── */
+  .stack-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .stack-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.83rem;
+    font-weight: 500;
+  }
+  .stack-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-dim);
+    font-size: 0.83rem;
+    border-top: 1px solid var(--border);
+  }
+  footer strong { color: var(--primary-light); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav .nav-links { display: none; }
+    section { padding: 3rem 1rem; }
+    .hero-stats { gap: 0.8rem; }
+    .hero-stat { min-width: 110px; padding: 0.9rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────── NAV ─────────────────────── -->
+<nav>
+  <a class="nav-brand" href="#">🛡️ GUARDIAN AI</a>
+  <ul class="nav-links">
+    <li><a href="#problem">문제 정의</a></li>
+    <li><a href="#vision">비전</a></li>
+    <li><a href="#wbs">WBS</a></li>
+    <li><a href="#architecture">아키텍처</a></li>
+    <li><a href="#timeline">일정</a></li>
+  </ul>
+</nav>
+
+<!-- ─────────────────────── HERO ─────────────────────── -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">🎓 캡스톤 디자인 · Flutter · Claude API</div>
+  <h1 class="hero-title">
+    <span class="gradient">Guardian AI</span><br>
+    The Last Fortress
+  </h1>
+  <p class="hero-subtitle">당신의 프라이버시를 지키는 최후의 요새</p>
+  <p class="hero-quote">
+    "복잡한 약관과 거대 AI의 파도 속에서,<br>
+    당신의 소중한 프라이버시를 지켜내는 최후의 요새"
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="num">30초</span>
+      <span class="label">약관 분석 목표</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">3종</span>
+      <span class="label">핵심 보안 기능</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">6주</span>
+      <span class="label">개발 기간 (10~15주)</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">0건</span>
+      <span class="label">서버 데이터 저장</span>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>스크롤하여 더 보기</span>
+    <span>↓</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── PROBLEM ─────────────────────── -->
+<section id="problem">
+  <p class="section-label">01 · 문제 정의</p>
+  <h2 class="section-title">디지털 프라이버시 위기,<br>지금 당장 해결해야 한다</h2>
+  <p class="section-desc">우리는 매일 수십 개의 약관에 동의하지만, 아무도 그 내용을 읽지 않습니다. 그 사이 개인정보는 조용히 새어나가고 있습니다.</p>
+
+  <div class="problem-stats">
+    <div class="stat-card red">
+      <span class="big">72분</span>
+      <p class="desc">Apple 약관 한 건을 모두 읽는 데 걸리는 시간. 아무도 읽지 않는 이유가 있다.</p>
+    </div>
+    <div class="stat-card orange">
+      <span class="big">&lt;9%</span>
+      <p class="desc">실제로 약관을 읽는 사용자 비율. 91%는 내용 모르고 동의한다.</p>
+    </div>
+    <div class="stat-card cyan">
+      <span class="big">3.5조</span>
+      <p class="desc">연간 전 세계 피싱 피해 규모(원). 점점 정교해지는 스미싱 공격.</p>
+    </div>
+    <div class="stat-card purple">
+      <span class="big">수십만</span>
+      <p class="desc">국내 연간 개인정보 침해 신고 건수(2023). 대부분 인지 못한 채 발생.</p>
+    </div>
+  </div>
+
+  <div class="problem-cards">
+    <div class="problem-card">
+      <div class="problem-icon">⚖️</div>
+      <h3>정보 비대칭</h3>
+      <p>기업은 알지만 사용자는 모른다. 법률 용어로 가득한 약관은 의도적으로 이해하기 어렵게 설계된다.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🧠</div>
+      <h3>인지 과부하</h3>
+      <p>평균 수십 페이지에 달하는 약관. 하루에도 여러 번 반복되는 "동의하기" 버튼. 인간의 처리 한계를 넘어선다.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🎣</div>
+      <h3>실시간 피싱 위협</h3>
+      <p>AI로 생성된 정교한 피싱 메시지와 스미싱. URL 하나 클릭으로 모든 개인정보가 유출된다.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📋</div>
+      <h3>무의식적 PII 노출</h3>
+      <p>복사·공유·문서 작성 과정에서 이름, 주민번호, 연락처가 무심코 노출된다. 본인도 모른다.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── VISION ─────────────────────── -->
+<section id="vision">
+  <p class="section-label">02 · 비전 & 핵심 가치</p>
+  <h2 class="section-title">Guardian AI가 제시하는<br>Digital Sovereignty</h2>
+  <p class="section-desc">단순한 앱이 아닙니다. 디지털 세계에서 개인의 주권을 지키는 최후의 방어선입니다.</p>
+
+  <div class="vision-statement">
+    <p>
+      <strong>모든 사람이 약관을 이해할 권리가 있다.</strong><br>
+      <strong>모든 사람이 자신의 데이터를 통제할 권리가 있다.</strong><br>
+      Guardian AI는 그 권리를 기술로 현실화한다.
+    </p>
+  </div>
+
+  <div class="values-grid">
+    <div class="value-card v1">
+      <div class="value-icon">🔐</div>
+      <h3>Privacy First</h3>
+      <p>모든 분석은 온디바이스(On-Device) 또는 익명화 처리를 원칙으로 한다. Guardian AI 자신이 또 하나의 감시자가 되지 않는다.</p>
+    </div>
+    <div class="value-card v2">
+      <div class="value-icon">⚡</div>
+      <h3>Clarity Over Complexity</h3>
+      <p>72분짜리 약관을 30초로. 법률 언어를 인간의 언어로. 모든 정보는 누구나 이해할 수 있는 형태로 제공한다.</p>
+    </div>
+    <div class="value-card v3">
+      <div class="value-icon">🛡️</div>
+      <h3>Proactive Defense</h3>
+      <p>위협이 오기를 기다리지 않는다. 실시간으로 감지하고, 사전에 경고하며, 즉각 차단한다.</p>
+    </div>
+    <div class="value-card v4">
+      <div class="value-icon">🤝</div>
+      <h3>User Empowerment</h3>
+      <p>단순히 정보를 제공하는 것을 넘어, 사용자 스스로 올바른 판단을 내릴 수 있도록 힘을 부여한다.</p>
+    </div>
+  </div>
+
+  <table class="user-table" style="margin-top: 3rem;">
+    <thead>
+      <tr>
+        <th></th>
+        <th>페르소나</th>
+        <th>설명</th>
+        <th>핵심 니즈</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🧑‍💼</td>
+        <td>직장인 A</td>
+        <td>업무 중 다양한 SaaS 서비스에 가입</td>
+        <td>약관 빠른 요약, 위험 조항 알림</td>
+      </tr>
+      <tr>
+        <td>👩‍🎓</td>
+        <td>대학생 B</td>
+        <td>앱 설치 시 약관을 무조건 동의</td>
+        <td>쉬운 이해, 피싱 링크 탐지</td>
+      </tr>
+      <tr>
+        <td>👴</td>
+        <td>시니어 C</td>
+        <td>스미싱·보이스피싱 피해 취약계층</td>
+        <td>직관적 UI, 위협 즉시 경고</td>
+      </tr>
+      <tr>
+        <td>👩‍💻</td>
+        <td>개발자 D</td>
+        <td>API·오픈소스 라이선스 검토 필요</td>
+        <td>상세 분석, 위험 점수 제공</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── WBS ─────────────────────── -->
+<section id="wbs">
+  <p class="section-label">03 · WBS — Work Breakdown Structure</p>
+  <h2 class="section-title">작업 분류 체계</h2>
+  <p class="section-desc">5개 영역, 총 ~49일 작업량. 영역을 클릭하면 세부 태스크를 확인할 수 있습니다.</p>
+
+  <div class="wbs-summary">
+    <button class="wbs-area-btn" onclick="toggleArea('area1')">
+      <div class="area-num">AREA 01</div>
+      <div class="area-name">사용자 영역</div>
+      <div class="progress-bar"><div class="progress-fill done" style="width:100%"></div></div>
+      <div class="area-pct">100% 완료</div>
+    </button>
+    <button class="wbs-area-btn" onclick="toggleArea('area2')">
+      <div class="area-num">AREA 02</div>
+      <div class="area-name">핵심 기능 영역</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:40%"></div></div>
+      <div class="area-pct">40% 진행중</div>
+    </button>
+    <button class="wbs-area-btn" onclick="toggleArea('area3')">
+      <div class="area-num">AREA 03</div>
+      <div class="area-name">데이터 / 백엔드</div>
+      <div class="progress-bar"><div class="progress-fill done" style="width:50%"></div></div>
+      <div class="area-pct">50% 완료</div>
+    </button>
+    <button class="wbs-area-btn" onclick="toggleArea('area4')">
+      <div class="area-num">AREA 04</div>
+      <div class="area-name">운영</div>
+      <div class="progress-bar"><div class="progress-fill done" style="width:33%"></div></div>
+      <div class="area-pct">33% 완료</div>
+    </button>
+    <button class="wbs-area-btn" onclick="toggleArea('area5')">
+      <div class="area-num">AREA 05</div>
+      <div class="area-name">문서 / 발표</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:20%"></div></div>
+      <div class="area-pct">20% 진행중</div>
+    </button>
+  </div>
+
+  <!-- AREA 1 -->
+  <div id="area1" class="wbs-detail">
+    <div class="wbs-group">
+      <div class="wbs-group-header">1.1 온보딩</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">1.1.1</span><span class="item-name">온보딩 화면 3단계 구현</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">1.1.2</span><span class="item-name">온보딩 완료 → 메인 탭 전환 로직</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">1.2 앱 기본 구조</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">1.2.1</span><span class="item-name">하단 탭 네비게이션 + 라우팅 설정</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">1.2.2</span><span class="item-name">홈 화면 레이아웃 + 대시보드 위젯</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">1.2.3</span><span class="item-name">테마 시스템 (다크/라이트) + 공통 위젯 + 에러·로딩·빈 상태 UI</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AREA 2 -->
+  <div id="area2" class="wbs-detail">
+    <div class="wbs-group">
+      <div class="wbs-group-header">2.1 PII 마스킹</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">2.1.1</span><span class="item-name">PII 탐지 정규식 엔진 + 한국어 이름 패턴 인식</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.1.2</span><span class="item-name">마스킹 유틸리티 함수 + 강도 조절 로직</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.1.3</span><span class="item-name">Claude API 보조 PII 인식 연동</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.1.4</span><span class="item-name">PII 마스킹 화면 UI + 마스킹 전/후 비교 뷰</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">2.2 약관 분석</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">2.2.1</span><span class="item-name">약관 분석용 프롬프트 엔지니어링</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.2</span><span class="item-name">API 응답 파싱 (위험 조항 구조화) + 약관 서비스 클래스</span><span class="item-days">2d</span><span class="badge badge-active">진행중</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.3</span><span class="item-name">약관 입력 화면 UI (텍스트 붙여넣기 + 파일 업로드)</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.4</span><span class="item-name">분석 결과 화면 + 위험도 시각화 컴포넌트</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.5</span><span class="item-name">조항별 원문+AI 해석 병렬 뷰 + 결과 공유 기능</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">2.3 피싱 탐지</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">2.3.1</span><span class="item-name">URL 구조 분석 유틸리티 + 단축 URL 추적 로직</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.2</span><span class="item-name">한국어 스미싱 패턴 DB 구축</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.3</span><span class="item-name">Claude API 문맥 분석 연동 + 종합 위험 점수 산출 모델</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.4</span><span class="item-name">피싱 탐지 화면 UI + 위험 경고 다이얼로그 + 결과 공유</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AREA 3 -->
+  <div id="area3" class="wbs-detail">
+    <div class="wbs-group">
+      <div class="wbs-group-header">3.1 데이터 모델</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">3.1.1</span><span class="item-name">PII·약관·피싱 분석 결과 모델 클래스 3종 정의</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">3.2 API 연동</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">3.2.1</span><span class="item-name">Claude API 클라이언트 설정 + 환경변수 (.env) 보안 설정</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">3.2.2</span><span class="item-name">API 에러 처리 + 재시도 로직 + 응답 캐싱</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">3.3 캐시 / 오프라인</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">3.3.1</span><span class="item-name">분석 히스토리 로컬 DB (SQLite) 설계 + 구현</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">3.3.2</span><span class="item-name">히스토리 목록 조회 화면</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">3.3.3</span><span class="item-name">PDF 파일 업로드 + 텍스트 추출 연동</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AREA 4 -->
+  <div id="area4" class="wbs-detail">
+    <div class="wbs-group">
+      <div class="wbs-group-header">4.1 빌드 / 배포</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">4.1.1</span><span class="item-name">Flutter 개발 환경 구축 + pubspec.yaml 의존성 설정</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">4.1.2</span><span class="item-name">앱 아이콘·스플래시 에셋 + 서명 키 설정</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.1.3</span><span class="item-name">Release APK 빌드 + 실기기 설치 검증</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">4.2 테스트</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">4.2.1</span><span class="item-name">PII 탐지 엔진 단위 테스트</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.2</span><span class="item-name">Claude API 연동 통합 테스트</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.3</span><span class="item-name">위젯 테스트 + 실기기(Android) 동작 테스트</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.4</span><span class="item-name">사용성 테스트 (지인 3명 이상) + 피드백 반영</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.5</span><span class="item-name">버그 수정 + 성능 최적화</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AREA 5 -->
+  <div id="area5" class="wbs-detail">
+    <div class="wbs-group">
+      <div class="wbs-group-header">5.1 문서</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">5.1.1</span><span class="item-name">README.md 작성 (설치·실행·빌드 가이드)</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
+        <div class="wbs-item"><span class="item-id">5.1.2</span><span class="item-name">최종 보고서 작성</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">5.2 중간 발표 자료</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">5.2.1</span><span class="item-name">중간 발표 슬라이드 + 데모 시나리오 작성</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
+        <div class="wbs-item"><span class="item-id">5.2.2</span><span class="item-name">중간 발표 리허설</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+    <div class="wbs-group">
+      <div class="wbs-group-header">5.3 최종 발표 자료</div>
+      <div class="wbs-items">
+        <div class="wbs-item"><span class="item-id">5.3.1</span><span class="item-name">최종 발표 슬라이드 작성</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">5.3.2</span><span class="item-name">데모 영상 녹화 + 최종 리허설</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:1.5rem; font-size:0.82rem; color:var(--text-dim);">
+    Must 합계: ~32d · Should 합계: ~9d · 총 ~49d (버퍼 20% 포함 ~59d)
+    &nbsp;|&nbsp; 1d ≈ 4h 집중 작업 기준
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── ARCHITECTURE ─────────────────────── -->
+<section id="architecture">
+  <p class="section-label">04 · 시스템 아키텍처</p>
+  <h2 class="section-title">설계 구조</h2>
+  <p class="section-desc">Flutter 단독 클라이언트 앱. 별도 백엔드 없이 Claude API를 직접 호출. 사용자 데이터는 서버에 저장되지 않습니다.</p>
+
+  <div class="arch-section">
+    <h3>전체 시스템 구조</h3>
+    <p class="arch-desc">온디바이스 처리와 Anthropic Claude API 직접 호출의 조합으로 Privacy First를 구현합니다.</p>
+    <div class="mermaid">
+graph TB
+    subgraph Device["📱 사용자 디바이스 (On-Device)"]
+        subgraph App["Flutter App"]
+            UI["UI Layer<br/>(Screens / Widgets)"]
+            BL["Business Logic Layer<br/>(Services / Use Cases)"]
+            DATA["Data Layer<br/>(Models / Local DB)"]
+            UI -->|User Action| BL
+            BL -->|Query / Persist| DATA
+            DATA -->|Result| BL
+            BL -->|State Update| UI
+        end
+    end
+    subgraph External["☁️ 외부 서비스"]
+        CLAUDE["Anthropic<br/>Claude API"]
+        VTOTAL["VirusTotal API<br/>(무료 한도 내)"]
+    end
+    BL -->|HTTPS / JSON| CLAUDE
+    BL -->|URL 조회| VTOTAL
+    CLAUDE -->|분석 결과| BL
+    VTOTAL -->|위험 판정| BL
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h3>PII 탐지 파이프라인</h3>
+    <p class="arch-desc">정규식 로컬 엔진이 1차 처리 → 미탐 의심 케이스만 Claude API 보조 인식. API 비용 최소화 + 오프라인 동작 가능.</p>
+    <div class="mermaid">
+flowchart LR
+    INPUT["텍스트 입력"] --> REGEX["정규식 엔진<br/>pii_detector.dart"]
+    REGEX --> MASK["마스킹 적용<br/>masking_utils.dart"]
+    REGEX -->|미탐 의심 케이스| API["Claude API<br/>pii_ai_service.dart"]
+    API --> MERGE["결과 병합"]
+    MASK --> OUTPUT["마스킹 결과 출력"]
+    MERGE --> OUTPUT
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h3>약관 분석 파이프라인 — 청킹 전략</h3>
+    <p class="arch-desc">긴 약관도 조항 단위로 분할해 병렬 API 호출. 위험 조항을 🔴위험 / 🟡주의 / 🟢안전 3단계로 분류합니다.</p>
+    <div class="mermaid">
+flowchart TD
+    RAW["원문 약관 텍스트"] --> CHECK{"길이 확인<br/>≤ 4,000자?"}
+    CHECK -->|예| SINGLE["단일 API 호출"]
+    CHECK -->|아니오| CHUNK["조항 단위 분할<br/>(빈 줄 / 제N조 기준)"]
+    CHUNK --> MULTI["청크별 API 병렬 호출"]
+    SINGLE --> PARSE["응답 파싱<br/>tos_parser.dart"]
+    MULTI --> MERGE2["결과 병합<br/>(위험 조항 중복 제거)"]
+    MERGE2 --> PARSE
+    PARSE --> REPORT["RiskReport 생성<br/>🔴위험 / 🟡주의 / 🟢안전"]
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <h3>피싱 탐지 파이프라인</h3>
+    <p class="arch-desc">URL 구조 분석 + 스미싱 패턴 + Claude API 문맥 분석을 종합해 위험 점수를 산출합니다.</p>
+    <div class="mermaid">
+flowchart TD
+    INPUT2["URL 또는 문자 입력"] --> STRUCT["URL 구조 분석<br/>url_analyzer.dart"]
+    INPUT2 --> PATTERN["스미싱 패턴 매칭<br/>smishing_patterns.dart"]
+    STRUCT --> EXPAND["단축 URL 추적<br/>url_expander.dart"]
+    EXPAND --> VTOTAL2["VirusTotal API<br/>(한도 내)"]
+    PATTERN --> SCORE["위험 점수 산출<br/>phishing_result.dart"]
+    VTOTAL2 --> SCORE
+    STRUCT --> API2["Claude API<br/>문맥 분석"]
+    API2 --> SCORE
+    SCORE --> OUTPUT2{"종합 위험도<br/>임계값 판정"}
+    OUTPUT2 -->|≥ 7| DANGER["🔴 위험 경고 다이얼로그"]
+    OUTPUT2 -->|4~6| WARN["🟡 주의 안내"]
+    OUTPUT2 -->|≤ 3| SAFE["🟢 안전 표시"]
+    </div>
+  </div>
+
+  <h3 style="margin-top:2.5rem; margin-bottom:1rem; font-size:1rem; font-weight:700;">핵심 아키텍처 결정 (ADR)</h3>
+  <div class="adr-grid">
+    <div class="adr-card">
+      <div class="adr-tag">ADR-001</div>
+      <div class="adr-title">백엔드 없이 Flutter + Claude API 직접 호출</div>
+      <div class="adr-desc">6주 일정 내 서버 구축·운영 비용 제거. 사용자 데이터 서버 저장 금지 원칙과 일치. API 키는 flutter_secure_storage로 보호.</div>
+    </div>
+    <div class="adr-card">
+      <div class="adr-tag">ADR-002</div>
+      <div class="adr-title">상태 관리: Provider (단순) 우선</div>
+      <div class="adr-desc">6주 프로젝트에서 학습 비용 최소화. 기능 3개 수준의 앱 복잡도에 Riverpod/Bloc은 과도한 아키텍처.</div>
+    </div>
+    <div class="adr-card">
+      <div class="adr-tag">ADR-003</div>
+      <div class="adr-title">PII 탐지: 로컬 정규식 1차, Claude API 2차</div>
+      <div class="adr-desc">API 비용 절감 + 3초 이내 처리 성능 요건 달성 + 오프라인 동작 가능. 이름 인식에만 API 활용.</div>
+    </div>
+    <div class="adr-card">
+      <div class="adr-tag">ADR-004</div>
+      <div class="adr-title">로컬 DB: SQLite (sqflite)</div>
+      <div class="adr-desc">Flutter 생태계 표준. 구조화된 쿼리 지원. 히스토리에 결과 요약만 저장, 원문은 미저장.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2.5rem; margin-bottom:1rem; font-size:1rem; font-weight:700;">기술 스택</h3>
+  <div class="stack-grid">
+    <span class="stack-badge"><span class="dot" style="background:#54c5f8"></span>Flutter / Dart</span>
+    <span class="stack-badge"><span class="dot" style="background:#6366f1"></span>Claude API (Anthropic)</span>
+    <span class="stack-badge"><span class="dot" style="background:#f59e0b"></span>Provider (상태관리)</span>
+    <span class="stack-badge"><span class="dot" style="background:#10b981"></span>sqflite (SQLite)</span>
+    <span class="stack-badge"><span class="dot" style="background:#ef4444"></span>VirusTotal API</span>
+    <span class="stack-badge"><span class="dot" style="background:#8b5cf6"></span>flutter_secure_storage</span>
+    <span class="stack-badge"><span class="dot" style="background:#06b6d4"></span>GoRouter</span>
+    <span class="stack-badge"><span class="dot" style="background:#9ca3af"></span>Android / iOS</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── TIMELINE ─────────────────────── -->
+<section id="timeline">
+  <p class="section-label">05 · 개발 일정</p>
+  <h2 class="section-title">6주 로드맵</h2>
+  <p class="section-desc">10주차(기반구축)부터 15주차(최종발표)까지. 현재 12~13주차 진행 중.</p>
+
+  <div class="timeline">
+    <div class="week-item done">
+      <div class="week-header">
+        <span class="week-num">10주차</span>
+        <span class="week-title">기반 구축</span>
+        <span class="badge badge-done">완료</span>
+      </div>
+      <ul class="week-tasks">
+        <li>Flutter 개발 환경 구축 + Claude API 연동 확인</li>
+        <li>비전·요구사항·WBS·일정 설계 문서 완성</li>
+        <li>시스템 아키텍처 문서 작성</li>
+      </ul>
+    </div>
+
+    <div class="week-item done">
+      <div class="week-header">
+        <span class="week-num">11주차</span>
+        <span class="week-title">앱 기본 구조 + PII 마스킹</span>
+        <span class="badge badge-done">완료</span>
+      </div>
+      <ul class="week-tasks">
+        <li>온보딩 화면 (3단계) + 하단 탭 네비게이션</li>
+        <li>정규식 기반 PII 탐지 엔진 + 단위 테스트</li>
+        <li>Claude API PII 보조 서비스 + 마스킹 화면 UI</li>
+      </ul>
+    </div>
+
+    <div class="week-item active">
+      <div class="week-header">
+        <span class="week-num">12주차</span>
+        <span class="week-title">약관 분석 + 중간 발표</span>
+        <span class="badge badge-active">진행중</span>
+      </div>
+      <ul class="week-tasks">
+        <li>약관 분석 파이프라인 (청킹 전략) 구현</li>
+        <li>위험 조항 카드 결과 화면 UI</li>
+        <li><strong>★ 중간 발표 — PII 마스킹 기능 시연</strong></li>
+      </ul>
+    </div>
+
+    <div class="week-item todo">
+      <div class="week-header">
+        <span class="week-num">13주차</span>
+        <span class="week-title">피싱 탐지 기능</span>
+        <span class="badge badge-todo">예정</span>
+      </div>
+      <ul class="week-tasks">
+        <li>URL 구조 분석 + 단축 URL 추적 로직</li>
+        <li>한국어 스미싱 패턴 DB 구축</li>
+        <li>Claude API 문맥 분석 + 종합 위험 점수 산출</li>
+      </ul>
+    </div>
+
+    <div class="week-item todo">
+      <div class="week-header">
+        <span class="week-num">14주차</span>
+        <span class="week-title">통합 · 테스트 · 마무리</span>
+        <span class="badge badge-todo">예정</span>
+      </div>
+      <ul class="week-tasks">
+        <li>3개 핵심 기능 통합 + 버그 수정</li>
+        <li>사용성 테스트 (지인 3명 이상) + 피드백 반영</li>
+        <li>Release APK 빌드 + 실기기 검증</li>
+      </ul>
+    </div>
+
+    <div class="week-item milestone">
+      <div class="week-header">
+        <span class="week-num">15주차</span>
+        <span class="week-title">최종 발표 · 제출</span>
+        <span class="badge" style="background:rgba(245,158,11,0.15);color:var(--orange);">마일스톤</span>
+      </div>
+      <ul class="week-tasks">
+        <li>최종 발표 슬라이드 (10슬라이드 이상) + 3분 데모</li>
+        <li>Release APK + 최종 보고서 + README 완성</li>
+        <li><strong>★ 최종 발표 — 완성된 MVP 시연</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem;">
+    <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:1rem;">마일스톤 달성 기준</h3>
+    <div style="display:grid; gap:0.6rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M1</strong> 환경 구축 완료 — API 호출 성공, 앱 실행 확인</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M2</strong> PII 마스킹 완성 — 전화번호·이메일·이름 마스킹 동작</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--cyan)">🔄</span><span><strong>M3</strong> 약관 분석 + 중간 발표 — 실제 약관 분석 결과 출력</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M4</strong> 피싱 탐지 완성 — 스미싱 문자 위험 판정 동작</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M5</strong> 통합 + APK 빌드 — 크래시 0건, Release APK 빌드 성공</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M6</strong> 최종 발표 완료 — 발표 및 보고서 제출 완료</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────── FOOTER ─────────────────────── -->
+<footer>
+  <p style="font-size:1.5rem; margin-bottom:0.5rem">🛡️</p>
+  <p><strong>Guardian AI: The Last Fortress</strong></p>
+  <p style="margin-top:0.4rem; color:var(--text-dim)">캡스톤 디자인 · Flutter + Claude API · 2026</p>
+  <p style="margin-top:1rem; font-style:italic; color:var(--text-dim); font-size:0.8rem;">
+    "The last line of defense is not a wall. It is knowledge."
+  </p>
+</footer>
+
+<script>
+  // Mermaid init
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6366f1',
+      primaryTextColor: '#e5e7eb',
+      primaryBorderColor: '#374151',
+      lineColor: '#6b7280',
+      secondaryColor: '#1f2937',
+      tertiaryColor: '#111827',
+      background: '#111827',
+      mainBkg: '#111827',
+      nodeBorder: '#374151',
+      clusterBkg: '#1f2937',
+      titleColor: '#e5e7eb',
+      edgeLabelBackground: '#111827',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+  });
+
+  // WBS toggle
+  let activeArea = null;
+  function toggleArea(id) {
+    const el = document.getElementById(id);
+    const btn = el.previousElementSibling;
+
+    if (activeArea && activeArea !== id) {
+      document.getElementById(activeArea).classList.remove('visible');
+      document.querySelector(`[onclick="toggleArea('${activeArea}')"]`).classList.remove('active');
+    }
+
+    if (activeArea === id) {
+      el.classList.remove('visible');
+      btn.classList.remove('active');
+      activeArea = null;
+    } else {
+      el.classList.add('visible');
+      btn.classList.add('active');
+      activeArea = id;
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.stat-card, .problem-card, .value-card, .adr-card, .wbs-group, .week-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
