@@ -7,7 +7,6 @@ void main() {
     await tester.pumpWidget(const App());
 
     expect(find.text('홈'), findsOneWidget);
-    expect(find.text('PII 마스킹'), findsWidgets);
     expect(find.text('약관 분석'), findsWidgets);
     expect(find.text('피싱 탐지'), findsWidgets);
   });

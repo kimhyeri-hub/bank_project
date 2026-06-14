@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_them.dart';
 import '../../services/activity_service.dart';
+import '../../services/tos_service.dart';
+import '../../services/claude_service.dart';
+import '../../services/history_service.dart';
 
 class TosScreen extends StatefulWidget {
   const TosScreen({super.key});
@@ -15,8 +18,8 @@ class _TosScreenState extends State<TosScreen> {
   final _textController = TextEditingController();
   String? _uploadedFileName;
   bool _isAnalyzing = false;
-  List<_RiskItem>? _results;
-  String? _summary;
+  TosReport? _report;
+  String? _errorMessage;
 
   static const _exampleUrl = 'https://www.kbstar.com/terms/deposit_agreement.html';
   static const _exampleText =
@@ -29,29 +32,50 @@ class _TosScreenState extends State<TosScreen> {
   }
 
   Future<void> _analyze() async {
+    final input = _inputMethod == 1
+        ? _urlController.text.trim()
+        : _textController.text.trim();
     final hasInput = (_inputMethod == 0 && _uploadedFileName != null) ||
-        (_inputMethod == 1 && _urlController.text.trim().isNotEmpty) ||
-        (_inputMethod == 2 && _textController.text.trim().isNotEmpty);
+        (_inputMethod == 1 && input.isNotEmpty) ||
+        (_inputMethod == 2 && input.isNotEmpty);
     if (!hasInput) return;
 
     setState(() {
       _isAnalyzing = true;
-      _results = null;
+      _report = null;
+      _errorMessage = null;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-    await ActivityService.recordTosAnalysis();
-
-    setState(() {
-      _isAnalyzing = false;
-      _summary = '총 3건의 위험 조항이 발견되었습니다. 개인정보 제3자 제공 및 사업자 면책 조항을 반드시 확인하세요.';
-      _results = [
-        _RiskItem(level: _Level.danger, title: '개인정보 제3자 제공', clause: '제3조', desc: '수집된 개인정보가 제휴사 등 제3자에게 제공될 수 있습니다. 동의 거부 시 서비스 이용이 제한될 수 있습니다.'),
-        _RiskItem(level: _Level.warning, title: '일방적 서비스 변경·중단', clause: '제7조', desc: '사전 공지 없이 서비스가 변경되거나 중단될 수 있으며, 이에 대한 별도 보상이 없을 수 있습니다.'),
-        _RiskItem(level: _Level.danger, title: '사업자 손해배상 면책', clause: '제12조', desc: '서비스 이용 중 발생한 손해에 대해 회사는 책임을 지지 않으며, 이용자가 전적으로 책임을 집니다.'),
-        _RiskItem(level: _Level.safe, title: '해지 및 환불 정책', clause: '제15조', desc: '서비스 해지 시 잔여 기간에 비례하여 환불이 진행됩니다. 표준 약관을 따릅니다.'),
-      ];
-    });
+    try {
+      TosReport report;
+      if (ClaudeService.isConfigured) {
+        final text = _inputMethod == 0
+            ? _exampleText // PDF는 현재 텍스트 추출 미구현, 예시 사용
+            : input;
+        report = await TosService.analyze(text);
+      } else {
+        await Future.delayed(const Duration(seconds: 1));
+        report = TosService.mockReport();
+      }
+      await ActivityService.recordTosAnalysis();
+      await HistoryService.save(HistoryEntry(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: HistoryType.tos,
+        input: _inputMethod == 0 ? '[PDF] $_uploadedFileName' : input.length > 40 ? '${input.substring(0, 40)}…' : input,
+        resultSummary: report.summary,
+        riskLevel: report.dangerCount > 0 ? 'danger' : report.warningCount > 0 ? 'warning' : 'safe',
+        createdAt: DateTime.now(),
+      ));
+      setState(() {
+        _isAnalyzing = false;
+        _report = report;
+      });
+    } catch (e) {
+      setState(() {
+        _isAnalyzing = false;
+        _errorMessage = '분석 중 오류가 발생했습니다: $e';
+      });
+    }
   }
 
   @override
@@ -82,7 +106,18 @@ class _TosScreenState extends State<TosScreen> {
                 label: Text(_isAnalyzing ? '분석 중...' : '약관 분석하기'),
               ),
             ),
-            if (_results != null) ...[
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEBEE),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(_errorMessage!, style: const TextStyle(color: AppTheme.dangerColor, fontSize: 13)),
+              ),
+            ],
+            if (_report != null) ...[
               const SizedBox(height: 24),
               _buildSummaryCard(),
               const SizedBox(height: 16),
@@ -116,7 +151,7 @@ class _TosScreenState extends State<TosScreen> {
             child: GestureDetector(
               onTap: () => setState(() {
                 _inputMethod = i;
-                _results = null;
+                _report = null;
                 _uploadedFileName = null;
               }),
               child: AnimatedContainer(
@@ -320,7 +355,7 @@ class _TosScreenState extends State<TosScreen> {
               children: [
                 const Text('AI 요약', style: TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
-                Text(_summary!, style: const TextStyle(fontSize: 13, color: Colors.white, height: 1.5)),
+                Text(_report!.summary, style: const TextStyle(fontSize: 13, color: Colors.white, height: 1.5)),
               ],
             ),
           ),
@@ -330,8 +365,8 @@ class _TosScreenState extends State<TosScreen> {
   }
 
   Widget _buildResultList() {
-    final dangerCount = _results!.where((r) => r.level == _Level.danger).length;
-    final warningCount = _results!.where((r) => r.level == _Level.warning).length;
+    final dangerCount = _report!.dangerCount;
+    final warningCount = _report!.warningCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,9 +381,9 @@ class _TosScreenState extends State<TosScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        ..._results!.map((r) => Padding(
+        ..._report!.clauses.map((c) => Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: _buildRiskCard(r),
+          child: _buildRiskCard(c),
         )),
       ],
     );
@@ -366,13 +401,13 @@ class _TosScreenState extends State<TosScreen> {
     );
   }
 
-  Widget _buildRiskCard(_RiskItem item) {
+  Widget _buildRiskCard(RiskClause clause) {
     final configs = {
-      _Level.danger: (AppTheme.dangerColor, const Color(0xFFFFEBEE), Icons.dangerous_outlined),
-      _Level.warning: (AppTheme.warningColor, const Color(0xFFFFF8E1), Icons.warning_amber_outlined),
-      _Level.safe: (AppTheme.safeColor, const Color(0xFFE8F5E9), Icons.check_circle_outline),
+      RiskLevel.danger: (AppTheme.dangerColor, const Color(0xFFFFEBEE), Icons.dangerous_outlined),
+      RiskLevel.warning: (AppTheme.warningColor, const Color(0xFFFFF8E1), Icons.warning_amber_outlined),
+      RiskLevel.safe: (AppTheme.safeColor, const Color(0xFFE8F5E9), Icons.check_circle_outline),
     };
-    final (color, bg, icon) = configs[item.level]!;
+    final (color, bg, icon) = configs[clause.level]!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -397,16 +432,17 @@ class _TosScreenState extends State<TosScreen> {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(item.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary))),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(6)),
-                      child: Text(item.clause, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w600)),
-                    ),
+                    Expanded(child: Text(clause.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary))),
+                    if (clause.clause.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(6)),
+                        child: Text(clause.clause, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w600)),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text(item.desc, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5)),
+                Text(clause.description, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5)),
               ],
             ),
           ),
@@ -423,12 +459,3 @@ class _TosScreenState extends State<TosScreen> {
   }
 }
 
-enum _Level { danger, warning, safe }
-
-class _RiskItem {
-  final _Level level;
-  final String title;
-  final String clause;
-  final String desc;
-  const _RiskItem({required this.level, required this.title, required this.clause, required this.desc});
-}
