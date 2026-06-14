@@ -23,3 +23,11 @@ build/web/~
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Secrets & signing — 절대 커밋 금지
+.env
+.env.*
+!.env.*.example
+android/key.properties
+*.keystore
+*.jks

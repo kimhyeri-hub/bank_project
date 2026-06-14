@@ -102,40 +102,34 @@ Got dependencies!
 
 ## 4. 환경변수 설정
 
-`.env.example`을 복사해 `.env`를 생성합니다.  
-`.env`는 `.gitignore`에 포함되어 있으므로 **절대 커밋하지 마세요.**
+Guardian AI는 `--dart-define-from-file`로 Claude API 키를 주입합니다. 환경별로
+`.env.dev` / `.env.staging` / `.env.prod` 파일을 사용하며, 모두 `.gitignore`에
+포함되어 있으므로 **절대 커밋하지 마세요.** (커밋 가능한 `.env.*.example`만 제공)
 
 ```bash
 # macOS / Linux
-cp .env.example .env
+cp .env.dev.example .env.dev
 
 # 윈도우 (PowerShell)
-Copy-Item .env.example .env
+Copy-Item .env.dev.example .env.dev
 ```
 
-`.env.example` 내용:
+`.env.dev.example` 내용:
 
 ```dotenv
-# -----------------------------------------------
-# Guardian AI 환경변수 설정
-# 이 파일을 복사해 .env로 저장 후 값을 채우세요.
-# .env는 절대 Git에 커밋하지 마세요.
-# -----------------------------------------------
-
 # [필수] Anthropic Claude API 키
 # 발급: https://console.anthropic.com
-CLAUDE_API_KEY=sk-ant-api03-여기에_본인_키_붙여넣기
+ANTHROPIC_API_KEY=sk-ant-api03-여기에_본인_키_붙여넣기
 
-# [필수] 사용할 Claude 모델명
-CLAUDE_MODEL=claude-sonnet-4-20250514
-
-# [선택] VirusTotal API 키
-# 없으면 빈칸. 자체 패턴 매칭으로 대체됩니다.
-# 발급: https://www.virustotal.com/gui/my-apikey
-VIRUSTOTAL_API_KEY=
+# 참고용 환경 식별자 (코드에서 직접 참조하지는 않음)
+APP_ENV=dev
 ```
 
-`.env`를 열어 `CLAUDE_API_KEY` 값만 본인 키로 교체하면 됩니다.
+`.env.dev`를 열어 `ANTHROPIC_API_KEY` 값만 본인 키로 교체하면 됩니다.
+API 키가 없어도 앱은 실행되며, 로컬 분석/목 데이터로 동작합니다
+(`ClaudeService.isConfigured == false`일 때의 fallback).
+
+환경별 설정 분리 방식과 staging/prod 빌드 명령은 `docs/deploy.md` 참고.
 
 ---
 
@@ -161,13 +155,17 @@ flutter devices
 ### 앱 실행
 
 ```bash
+# Claude API 없이 실행 (로컬 분석/목 데이터로 동작)
 flutter run
+
+# Claude API 연동 (.env.dev 작성 후)
+flutter run --dart-define-from-file=.env.dev
 ```
 
 특정 기기 지정:
 ```bash
-flutter run -d emulator-5554   # Android 에뮬레이터
-flutter run -d 00008120-...    # iPhone 실기기
+flutter run -d emulator-5554 --dart-define-from-file=.env.dev   # Android 에뮬레이터
+flutter run -d 00008120-...    --dart-define-from-file=.env.dev # iPhone 실기기
 ```
 
 성공 시: 에뮬레이터에 Guardian AI 앱 화면이 표시됩니다. ✅
@@ -210,8 +208,8 @@ flutter run
 
 ### Q4. API 호출 시 `401 Unauthorized` 오류가 납니다
 
-1. `.env` 파일이 프로젝트 루트에 있는지 확인
-2. `CLAUDE_API_KEY` 값이 `sk-ant-api03-...` 형식인지 확인
+1. `flutter run --dart-define-from-file=.env.dev` 처럼 환경 파일을 지정해 실행했는지 확인
+2. `.env.dev`의 `ANTHROPIC_API_KEY` 값이 `sk-ant-api03-...` 형식인지 확인
 3. 키 앞뒤에 공백·따옴표가 없는지 확인
 4. https://console.anthropic.com 에서 키 만료 여부 확인
 
