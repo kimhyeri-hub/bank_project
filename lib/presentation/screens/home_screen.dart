@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../theme/app_them.dart';
 import '../../services/activity_service.dart';
+import '../../services/history_service.dart';
 import '../../services/notification_service.dart';
+import 'history_screen.dart';
 import 'notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(int tabIndex)? onNavigateToTab;
+
+  const HomeScreen({super.key, this.onNavigateToTab});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -35,6 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openNotifications(BuildContext context) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
     _loadUnread();
+  }
+
+  void _openTosHistory(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (_) => const HistoryScreen(filterType: HistoryType.tos, title: '약관 분석 기록'),
+    ));
   }
 
   @override
@@ -187,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const Text('나의 활동', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
         const SizedBox(height: 16),
-        Row(
+        Builder(builder: (context) => Row(
           children: [
             _buildStatItem(
               icon: Icons.description_outlined,
@@ -195,6 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bg: const Color(0xFFFFF3E0),
               value: '${stats.tosCount}회',
               label: '약관 분석',
+              onTap: () => _openTosHistory(context),
             ),
             const SizedBox(width: 12),
             _buildStatItem(
@@ -213,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: '위협 차단',
             ),
           ],
-        ),
+        )),
       ],
     );
   }
@@ -224,22 +235,27 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color bg,
     required String value,
     required String label,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(height: 8),
-            Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
-            const SizedBox(height: 2),
-            Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
-          ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(height: 8),
+              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
+              const SizedBox(height: 2),
+              Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
+            ],
+          ),
         ),
       ),
     );
@@ -287,8 +303,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickActions(BuildContext context) {
     final actions = [
-      _ActionItem(icon: Icons.description_outlined, label: '약관\n분석', color: const Color(0xFFE65100), bg: const Color(0xFFFFF3E0)),
-      _ActionItem(icon: Icons.security_outlined, label: '피싱\n탐지', color: const Color(0xFFC62828), bg: const Color(0xFFFFEBEE)),
+      _ActionItem(icon: Icons.description_outlined, label: '약관\n분석', color: const Color(0xFFE65100), bg: const Color(0xFFFFF3E0), tabIndex: 1),
+      _ActionItem(icon: Icons.security_outlined, label: '피싱\n탐지', color: const Color(0xFFC62828), bg: const Color(0xFFFFEBEE), tabIndex: 2),
     ];
 
     return Padding(
@@ -297,41 +313,45 @@ class _HomeScreenState extends State<HomeScreen> {
         children: actions.map((a) => Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: a == actions.last ? 0 : 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: a.bg,
-                      borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => widget.onNavigateToTab?.call(a.tabIndex),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
-                    child: Icon(a.icon, color: a.color, size: 26),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    a.label,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                      height: 1.4,
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: a.bg,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(a.icon, color: a.color, size: 26),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    Text(
+                      a.label,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -400,7 +420,8 @@ class _ActionItem {
   final String label;
   final Color color;
   final Color bg;
-  const _ActionItem({required this.icon, required this.label, required this.color, required this.bg});
+  final int tabIndex;
+  const _ActionItem({required this.icon, required this.label, required this.color, required this.bg, required this.tabIndex});
 }
 
 class _InfoItem {

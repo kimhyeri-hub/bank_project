@@ -38,7 +38,10 @@ class _AppState extends State<App> {
       ),
       home: Scaffold(
         body: [
-          HomeScreen(key: ValueKey(_homeRefreshKey)),
+          HomeScreen(
+            key: ValueKey(_homeRefreshKey),
+            onNavigateToTab: (index) => setState(() => _currentIndex = index),
+          ),
           const TosScreen(),
           const PhishingScreen(),
         ][_currentIndex],

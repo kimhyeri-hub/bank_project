@@ -1,9 +1,13 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_them.dart';
 import '../../services/activity_service.dart';
+import '../../services/document_service.dart';
 import '../../services/tos_service.dart';
 import '../../services/claude_service.dart';
 import '../../services/history_service.dart';
+import '../../services/web_file_picker.dart';
 
 class TosScreen extends StatefulWidget {
   const TosScreen({super.key});
@@ -17,27 +21,71 @@ class _TosScreenState extends State<TosScreen> {
   final _urlController = TextEditingController();
   final _textController = TextEditingController();
   String? _uploadedFileName;
+  String? _extractedText;
+  bool _isExtracting = false;
   bool _isAnalyzing = false;
   TosReport? _report;
   String? _errorMessage;
 
-  static const _exampleUrl = 'https://www.kbstar.com/terms/deposit_agreement.html';
+  static const _exampleUrl =
+      'https://raw.githubusercontent.com/kimhyeri-hub/bank_project/main/sample/sample_terms.html';
   static const _exampleText =
       '제3조 (개인정보 제3자 제공) 회사는 수집한 개인정보를 제휴사에 제공할 수 있습니다. '
       '제7조 (서비스 중단) 회사는 사전 공지 없이 서비스를 중단할 수 있습니다. '
       '제12조 (손해배상) 서비스 이용으로 인한 손해는 이용자가 책임을 집니다.';
 
-  void _simulateUpload() {
-    setState(() => _uploadedFileName = 'KB국민은행_입출금통장_약관.pdf');
+  Future<void> _pickPdfFile() async {
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true,
+      );
+    } catch (e) {
+      setState(() => _errorMessage = '파일 선택 중 오류가 발생했습니다: $e');
+      return;
+    }
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    final bytes = file.bytes;
+    if (bytes == null) {
+      setState(() => _errorMessage = '파일을 읽을 수 없습니다.');
+      return;
+    }
+
+    await _handlePickedFile(file.name, bytes);
+  }
+
+  Future<void> _handlePickedFile(String name, Uint8List bytes) async {
+    setState(() {
+      _uploadedFileName = name;
+      _extractedText = null;
+      _isExtracting = true;
+      _errorMessage = null;
+      _report = null;
+    });
+
+    try {
+      final text = DocumentService.extractPdfText(bytes);
+      setState(() {
+        _extractedText = text;
+        _isExtracting = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isExtracting = false;
+        _uploadedFileName = null;
+        _errorMessage = 'PDF 텍스트 추출에 실패했습니다: $e';
+      });
+    }
   }
 
   Future<void> _analyze() async {
-    final input = _inputMethod == 1
-        ? _urlController.text.trim()
-        : _textController.text.trim();
-    final hasInput = (_inputMethod == 0 && _uploadedFileName != null) ||
-        (_inputMethod == 1 && input.isNotEmpty) ||
-        (_inputMethod == 2 && input.isNotEmpty);
+    final hasInput = (_inputMethod == 0 && _extractedText != null) ||
+        (_inputMethod == 1 && _urlController.text.trim().isNotEmpty) ||
+        (_inputMethod == 2 && _textController.text.trim().isNotEmpty);
     if (!hasInput) return;
 
     setState(() {
@@ -47,12 +95,28 @@ class _TosScreenState extends State<TosScreen> {
     });
 
     try {
+      String historyInput;
+      String? text;
+      switch (_inputMethod) {
+        case 0:
+          text = _extractedText;
+          historyInput = '[PDF] $_uploadedFileName';
+        case 1:
+          historyInput = _urlController.text.trim();
+        default:
+          text = _textController.text.trim();
+          historyInput = text.length > 40 ? '${text.substring(0, 40)}…' : text;
+      }
+
       TosReport report;
-      if (ClaudeService.isConfigured) {
-        final text = _inputMethod == 0
-            ? _exampleText // PDF는 현재 텍스트 추출 미구현, 예시 사용
-            : input;
-        report = await TosService.analyze(text);
+      if (_inputMethod == 1) {
+        await Future.delayed(const Duration(seconds: 1));
+        report = TosService.mockReport();
+      } else if (ClaudeService.isConfigured) {
+        report = await TosService.analyze(text!);
+      } else if (_inputMethod == 0) {
+        await Future.delayed(const Duration(seconds: 1));
+        report = TosService.pdfDemoReport();
       } else {
         await Future.delayed(const Duration(seconds: 1));
         report = TosService.mockReport();
@@ -61,7 +125,7 @@ class _TosScreenState extends State<TosScreen> {
       await HistoryService.save(HistoryEntry(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         type: HistoryType.tos,
-        input: _inputMethod == 0 ? '[PDF] $_uploadedFileName' : input.length > 40 ? '${input.substring(0, 40)}…' : input,
+        input: historyInput,
         resultSummary: report.summary,
         riskLevel: report.dangerCount > 0 ? 'danger' : report.warningCount > 0 ? 'warning' : 'safe',
         createdAt: DateTime.now(),
@@ -152,7 +216,9 @@ class _TosScreenState extends State<TosScreen> {
               onTap: () => setState(() {
                 _inputMethod = i;
                 _report = null;
+                _errorMessage = null;
                 _uploadedFileName = null;
+                _extractedText = null;
               }),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -207,46 +273,78 @@ class _TosScreenState extends State<TosScreen> {
         const SizedBox(height: 4),
         const Text('은행·카드사 앱에서 다운로드한 약관 PDF를 올려주세요.', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
         const SizedBox(height: 16),
-        GestureDetector(
-          onTap: _simulateUpload,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 28),
-            decoration: BoxDecoration(
-              color: _uploadedFileName != null ? const Color(0xFFE8EAF6) : AppTheme.backgroundColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: _uploadedFileName != null ? AppTheme.primaryColor : const Color(0xFFD1D5DB),
-                width: _uploadedFileName != null ? 2 : 1,
-                strokeAlign: BorderSide.strokeAlignInside,
+        Stack(
+          children: [
+            Listener(
+              behavior: HitTestBehavior.opaque,
+              onPointerDown: (_isExtracting || kIsWeb) ? null : (_) => _pickPdfFile(),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 28),
+                decoration: BoxDecoration(
+                  color: _uploadedFileName != null ? const Color(0xFFE8EAF6) : AppTheme.backgroundColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: _uploadedFileName != null ? AppTheme.primaryColor : const Color(0xFFD1D5DB),
+                    width: _uploadedFileName != null ? 2 : 1,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
+                child: _isExtracting
+                    ? Column(
+                        children: [
+                          const SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(strokeWidth: 3, color: AppTheme.primaryColor),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(_uploadedFileName ?? '', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+                          const SizedBox(height: 4),
+                          const Text('PDF에서 텍스트 추출 중...', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                        ],
+                      )
+                    : _uploadedFileName != null
+                        ? Column(
+                            children: [
+                              const Icon(Icons.picture_as_pdf, color: AppTheme.primaryColor, size: 36),
+                              const SizedBox(height: 8),
+                              Text(_uploadedFileName!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
+                              const SizedBox(height: 4),
+                              Text(
+                                _extractedText != null ? '텍스트 ${_extractedText!.length}자 추출 완료' : '파일이 선택되었습니다',
+                                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                              ),
+                            ],
+                          )
+                        : const Column(
+                            children: [
+                              Icon(Icons.cloud_upload_outlined, color: AppTheme.textSecondary, size: 36),
+                              SizedBox(height: 8),
+                              Text('여기를 눌러 파일 선택', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+                              SizedBox(height: 4),
+                              Text('PDF 파일만 지원', style: TextStyle(fontSize: 11, color: Color(0xFFB0B8C1))),
+                            ],
+                          ),
               ),
             ),
-            child: _uploadedFileName != null
-                ? Column(
-                    children: [
-                      const Icon(Icons.picture_as_pdf, color: AppTheme.primaryColor, size: 36),
-                      const SizedBox(height: 8),
-                      Text(_uploadedFileName!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
-                      const SizedBox(height: 4),
-                      const Text('파일이 선택되었습니다', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-                    ],
-                  )
-                : const Column(
-                    children: [
-                      Icon(Icons.cloud_upload_outlined, color: AppTheme.textSecondary, size: 36),
-                      SizedBox(height: 8),
-                      Text('여기를 눌러 파일 선택', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
-                      SizedBox(height: 4),
-                      Text('PDF, JPG, PNG 지원', style: TextStyle(fontSize: 11, color: Color(0xFFB0B8C1))),
-                    ],
-                  ),
-          ),
+            if (kIsWeb && !_isExtracting)
+              Positioned.fill(
+                child: buildWebPdfPicker(
+                  onFilePicked: (name, bytes) => _handlePickedFile(name, bytes),
+                  onError: (error) => setState(() => _errorMessage = error),
+                ),
+              ),
+          ],
         ),
-        if (_uploadedFileName != null) ...[
+        if (_uploadedFileName != null && !_isExtracting) ...[
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: () => setState(() => _uploadedFileName = null),
+            onTap: () => setState(() {
+              _uploadedFileName = null;
+              _extractedText = null;
+            }),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -430,17 +528,15 @@ class _TosScreenState extends State<TosScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(child: Text(clause.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary))),
-                    if (clause.clause.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                        decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(6)),
-                        child: Text(clause.clause, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w600)),
-                      ),
-                  ],
-                ),
+                Text(clause.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                if (clause.clause.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(6)),
+                    child: Text(clause.clause, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w600)),
+                  ),
+                ],
                 const SizedBox(height: 6),
                 Text(clause.description, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5)),
               ],
