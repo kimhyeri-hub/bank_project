@@ -125,6 +125,13 @@ lib/
 
 <br>
 
+## AI 협업 가이드
+
+이 프로젝트는 Claude Code를 적극 활용합니다. 슬래시 커맨드(`.claude/commands/`)와
+디버깅 교훈 위키(`lessons/`) 운영 규칙은 [`AGENTS.md`](AGENTS.md) 참고.
+
+<br>
+
 ## 보안 / 개인정보 보호 원칙
 
 - 입력한 모든 데이터는 **서버에 저장되지 않습니다** (Claude API 호출 시에만 전송)

@@ -474,6 +474,7 @@
     <li><a href="#wbs">WBS</a></li>
     <li><a href="#architecture">아키텍처</a></li>
     <li><a href="#timeline">일정</a></li>
+    <li><a href="#bonus">가산점</a></li>
   </ul>
 </nav>
 
@@ -660,26 +661,26 @@
     <button class="wbs-area-btn" onclick="toggleArea('area2')">
       <div class="area-num">AREA 02</div>
       <div class="area-name">핵심 기능 영역</div>
-      <div class="progress-bar"><div class="progress-fill active" style="width:40%"></div></div>
-      <div class="area-pct">40% 진행중</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:90%"></div></div>
+      <div class="area-pct">90% 진행중</div>
     </button>
     <button class="wbs-area-btn" onclick="toggleArea('area3')">
       <div class="area-num">AREA 03</div>
       <div class="area-name">데이터 / 백엔드</div>
-      <div class="progress-bar"><div class="progress-fill done" style="width:50%"></div></div>
-      <div class="area-pct">50% 완료</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:65%"></div></div>
+      <div class="area-pct">65% 진행중</div>
     </button>
     <button class="wbs-area-btn" onclick="toggleArea('area4')">
       <div class="area-num">AREA 04</div>
       <div class="area-name">운영</div>
-      <div class="progress-bar"><div class="progress-fill done" style="width:33%"></div></div>
-      <div class="area-pct">33% 완료</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:55%"></div></div>
+      <div class="area-pct">55% 진행중</div>
     </button>
     <button class="wbs-area-btn" onclick="toggleArea('area5')">
       <div class="area-num">AREA 05</div>
       <div class="area-name">문서 / 발표</div>
-      <div class="progress-bar"><div class="progress-fill active" style="width:20%"></div></div>
-      <div class="area-pct">20% 진행중</div>
+      <div class="progress-bar"><div class="progress-fill active" style="width:55%"></div></div>
+      <div class="area-pct">55% 진행중</div>
     </button>
   </div>
 
@@ -716,20 +717,20 @@
     <div class="wbs-group">
       <div class="wbs-group-header">2.2 약관 분석</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">2.2.1</span><span class="item-name">약관 분석용 프롬프트 엔지니어링</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
-        <div class="wbs-item"><span class="item-id">2.2.2</span><span class="item-name">API 응답 파싱 (위험 조항 구조화) + 약관 서비스 클래스</span><span class="item-days">2d</span><span class="badge badge-active">진행중</span></div>
-        <div class="wbs-item"><span class="item-id">2.2.3</span><span class="item-name">약관 입력 화면 UI (텍스트 붙여넣기 + 파일 업로드)</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">2.2.4</span><span class="item-name">분석 결과 화면 + 위험도 시각화 컴포넌트</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.1</span><span class="item-name">약관 분석용 프롬프트 엔지니어링</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.2</span><span class="item-name">API 응답 파싱 (위험 조항 구조화) + 약관 서비스 클래스</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.3</span><span class="item-name">약관 입력 화면 UI (PDF/URL/텍스트 직접 입력)</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.2.4</span><span class="item-name">분석 결과 화면 + 위험도 시각화 컴포넌트</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
         <div class="wbs-item"><span class="item-id">2.2.5</span><span class="item-name">조항별 원문+AI 해석 병렬 뷰 + 결과 공유 기능</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
       </div>
     </div>
     <div class="wbs-group">
       <div class="wbs-group-header">2.3 피싱 탐지</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">2.3.1</span><span class="item-name">URL 구조 분석 유틸리티 + 단축 URL 추적 로직</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">2.3.2</span><span class="item-name">한국어 스미싱 패턴 DB 구축</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">2.3.3</span><span class="item-name">Claude API 문맥 분석 연동 + 종합 위험 점수 산출 모델</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">2.3.4</span><span class="item-name">피싱 탐지 화면 UI + 위험 경고 다이얼로그 + 결과 공유</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.1</span><span class="item-name">URL 구조 분석 유틸리티 + 단축 URL 추적 로직</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.2</span><span class="item-name">한국어 스미싱 패턴 DB 구축</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.3</span><span class="item-name">Claude API 문맥 분석 연동 + 종합 위험 점수 산출 모델</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">2.3.4</span><span class="item-name">피싱 탐지 화면 UI + 위험 경고 다이얼로그 + 결과 공유</span><span class="item-days">2d</span><span class="badge badge-done">완료</span></div>
       </div>
     </div>
   </div>
@@ -746,14 +747,14 @@
       <div class="wbs-group-header">3.2 API 연동</div>
       <div class="wbs-items">
         <div class="wbs-item"><span class="item-id">3.2.1</span><span class="item-name">Claude API 클라이언트 설정 + 환경변수 (.env) 보안 설정</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
-        <div class="wbs-item"><span class="item-id">3.2.2</span><span class="item-name">API 에러 처리 + 재시도 로직 + 응답 캐싱</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">3.2.2</span><span class="item-name">API 에러 처리 + 미설정/오류 시 로컬 분석 fallback</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
       </div>
     </div>
     <div class="wbs-group">
-      <div class="wbs-group-header">3.3 캐시 / 오프라인</div>
+      <div class="wbs-group-header">3.3 히스토리 / 입력 확장</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">3.3.1</span><span class="item-name">분석 히스토리 로컬 DB (SQLite) 설계 + 구현</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">3.3.2</span><span class="item-name">히스토리 목록 조회 화면</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">3.3.1</span><span class="item-name">분석 히스토리 로컬 저장 (SharedPreferences, 최근 20건)</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">3.3.2</span><span class="item-name">히스토리 기반 "나의 활동" 대시보드 위젯</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
         <div class="wbs-item"><span class="item-id">3.3.3</span><span class="item-name">PDF 파일 업로드 + 텍스트 추출 연동</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
       </div>
     </div>
@@ -766,17 +767,17 @@
       <div class="wbs-items">
         <div class="wbs-item"><span class="item-id">4.1.1</span><span class="item-name">Flutter 개발 환경 구축 + pubspec.yaml 의존성 설정</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
         <div class="wbs-item"><span class="item-id">4.1.2</span><span class="item-name">앱 아이콘·스플래시 에셋 + 서명 키 설정</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">4.1.3</span><span class="item-name">Release APK 빌드 + 실기기 설치 검증</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.1.3</span><span class="item-name">Android SDK 설정 + Release APK 빌드 + 실기기 설치 검증</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
       </div>
     </div>
     <div class="wbs-group">
       <div class="wbs-group-header">4.2 테스트</div>
       <div class="wbs-items">
         <div class="wbs-item"><span class="item-id">4.2.1</span><span class="item-name">PII 탐지 엔진 단위 테스트</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
-        <div class="wbs-item"><span class="item-id">4.2.2</span><span class="item-name">Claude API 연동 통합 테스트</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">4.2.3</span><span class="item-name">위젯 테스트 + 실기기(Android) 동작 테스트</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.2</span><span class="item-name">약관/피싱 서비스 단위 테스트 + Claude API 연동 통합 테스트</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.3</span><span class="item-name">위젯 테스트 + 실기기(Android) 동작 테스트</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
         <div class="wbs-item"><span class="item-id">4.2.4</span><span class="item-name">사용성 테스트 (지인 3명 이상) + 피드백 반영</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
-        <div class="wbs-item"><span class="item-id">4.2.5</span><span class="item-name">버그 수정 + 성능 최적화</span><span class="item-days">2d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">4.2.5</span><span class="item-name">버그 수정 + 성능 최적화</span><span class="item-days">2d</span><span class="badge badge-active">진행중</span></div>
       </div>
     </div>
   </div>
@@ -786,21 +787,21 @@
     <div class="wbs-group">
       <div class="wbs-group-header">5.1 문서</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">5.1.1</span><span class="item-name">README.md 작성 (설치·실행·빌드 가이드)</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
+        <div class="wbs-item"><span class="item-id">5.1.1</span><span class="item-name">README.md / AGENTS.md / docs(setup·deploy·testing·security) 작성</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
         <div class="wbs-item"><span class="item-id">5.1.2</span><span class="item-name">최종 보고서 작성</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
       </div>
     </div>
     <div class="wbs-group">
       <div class="wbs-group-header">5.2 중간 발표 자료</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">5.2.1</span><span class="item-name">중간 발표 슬라이드 + 데모 시나리오 작성</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
-        <div class="wbs-item"><span class="item-id">5.2.2</span><span class="item-name">중간 발표 리허설</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">5.2.1</span><span class="item-name">중간 발표 슬라이드 + 데모 시나리오 작성</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
+        <div class="wbs-item"><span class="item-id">5.2.2</span><span class="item-name">중간 발표 리허설</span><span class="item-days">1d</span><span class="badge badge-done">완료</span></div>
       </div>
     </div>
     <div class="wbs-group">
       <div class="wbs-group-header">5.3 최종 발표 자료</div>
       <div class="wbs-items">
-        <div class="wbs-item"><span class="item-id">5.3.1</span><span class="item-name">최종 발표 슬라이드 작성</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
+        <div class="wbs-item"><span class="item-id">5.3.1</span><span class="item-name">최종 발표 슬라이드 작성 (가산점 섹션 포함)</span><span class="item-days">1d</span><span class="badge badge-active">진행중</span></div>
         <div class="wbs-item"><span class="item-id">5.3.2</span><span class="item-name">데모 영상 녹화 + 최종 리허설</span><span class="item-days">1d</span><span class="badge badge-todo">예정</span></div>
       </div>
     </div>
@@ -940,7 +941,7 @@ flowchart TD
 <section id="timeline">
   <p class="section-label">05 · 개발 일정</p>
   <h2 class="section-title">6주 로드맵</h2>
-  <p class="section-desc">10주차(기반구축)부터 15주차(최종발표)까지. 현재 12~13주차 진행 중.</p>
+  <p class="section-desc">10주차(기반구축)부터 15주차(최종발표)까지. 현재 14주차 진행 중.</p>
 
   <div class="timeline">
     <div class="week-item done">
@@ -969,11 +970,11 @@ flowchart TD
       </ul>
     </div>
 
-    <div class="week-item active">
+    <div class="week-item done">
       <div class="week-header">
         <span class="week-num">12주차</span>
         <span class="week-title">약관 분석 + 중간 발표</span>
-        <span class="badge badge-active">진행중</span>
+        <span class="badge badge-done">완료</span>
       </div>
       <ul class="week-tasks">
         <li>약관 분석 파이프라인 (청킹 전략) 구현</li>
@@ -982,11 +983,11 @@ flowchart TD
       </ul>
     </div>
 
-    <div class="week-item todo">
+    <div class="week-item done">
       <div class="week-header">
         <span class="week-num">13주차</span>
         <span class="week-title">피싱 탐지 기능</span>
-        <span class="badge badge-todo">예정</span>
+        <span class="badge badge-done">완료</span>
       </div>
       <ul class="week-tasks">
         <li>URL 구조 분석 + 단축 URL 추적 로직</li>
@@ -995,16 +996,16 @@ flowchart TD
       </ul>
     </div>
 
-    <div class="week-item todo">
+    <div class="week-item active">
       <div class="week-header">
         <span class="week-num">14주차</span>
         <span class="week-title">통합 · 테스트 · 마무리</span>
-        <span class="badge badge-todo">예정</span>
+        <span class="badge badge-active">진행중</span>
       </div>
       <ul class="week-tasks">
-        <li>3개 핵심 기능 통합 + 버그 수정</li>
-        <li>사용성 테스트 (지인 3명 이상) + 피드백 반영</li>
-        <li>Release APK 빌드 + 실기기 검증</li>
+        <li>3개 핵심 기능 통합 + 단위/통합 테스트 작성</li>
+        <li>Android SDK 설정 + Release APK 빌드 진행 중</li>
+        <li>README / AGENTS.md / docs(setup·deploy·testing·security) 정비</li>
       </ul>
     </div>
 
@@ -1027,11 +1028,79 @@ flowchart TD
     <div style="display:grid; gap:0.6rem;">
       <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M1</strong> 환경 구축 완료 — API 호출 성공, 앱 실행 확인</span></div>
       <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M2</strong> PII 마스킹 완성 — 전화번호·이메일·이름 마스킹 동작</span></div>
-      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--cyan)">🔄</span><span><strong>M3</strong> 약관 분석 + 중간 발표 — 실제 약관 분석 결과 출력</span></div>
-      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M4</strong> 피싱 탐지 완성 — 스미싱 문자 위험 판정 동작</span></div>
-      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M5</strong> 통합 + APK 빌드 — 크래시 0건, Release APK 빌드 성공</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M3</strong> 약관 분석 + 중간 발표 — 실제 약관 분석 결과 출력</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--green)">✅</span><span><strong>M4</strong> 피싱 탐지 완성 — 스미싱 문자 위험 판정 동작</span></div>
+      <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--cyan)">🔄</span><span><strong>M5</strong> 통합 + APK 빌드 — 크래시 0건, Release APK 빌드 성공</span></div>
       <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem;"><span style="color:var(--text-dim)">📋</span><span><strong>M6</strong> 최종 발표 완료 — 발표 및 보고서 제출 완료</span></div>
     </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────────────── BONUS ─────────────────────── -->
+<section id="bonus">
+  <p class="section-label">06 · 가산점 신청 — Technical Excellence</p>
+  <h2 class="section-title">단순 CRUD 앱을 넘어선<br>AI 기반 보안 솔루션</h2>
+  <p class="section-desc">5가지 기술적 도전 과제와 정량적 성과 지표로 Guardian AI의 차별성을 제시합니다. 전체 신청서는 <code>bonus.md</code> 참고.</p>
+
+  <div class="problem-cards" style="margin-bottom: 2.5rem;">
+    <div class="problem-card">
+      <div class="problem-icon">🧠</div>
+      <h3>멀티모달 AI 파이프라인</h3>
+      <p>약관 분석·PII 탐지·피싱 판별, 3가지 NLP 태스크를 독립 프롬프트 체계와 4,000자 청킹 전략으로 하나의 Claude 엔드포인트 위에서 운영</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔐</div>
+      <h3>Privacy-by-Design</h3>
+      <p>PII 마스킹 100% 로컬 처리, 원문 비전송 원칙, 분석 이력 암호화 저장으로 "보호 앱이 감시자가 되는" 역설을 차단</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🌐</div>
+      <h3>한국어 특화 NLP</h3>
+      <p>성씨 DB·음절 패턴 기반 한국어 이름 인식, 국내 스미싱 패턴 DB, 법률 용어 → 일상 언어 변환 프롬프트 자체 구축</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">⚡</div>
+      <h3>실시간 반응형 UX</h3>
+      <p>로컬 1차 판정을 즉시 표시 후 Claude API 결과로 점진적 업데이트(Progressive Enhancement), LRU 캐시로 중복 호출 생략</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🧪</div>
+      <h3>테스트 자동화</h3>
+      <p>PII·약관·피싱 서비스 단위 테스트 + 위젯 테스트 + 통합 테스트로 프로덕션 수준 품질 보증 체계 구축</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🌍</div>
+      <h3>사회적 가치</h3>
+      <p>연 7,000억 원 보이스피싱 피해, 약관을 읽는 사용자 9% 미만 — 정보 약자를 위한 디지털 프라이버시 권리 실현</p>
+    </div>
+  </div>
+
+  <div class="problem-stats" style="margin-bottom: 2.5rem;">
+    <div class="stat-card cyan">
+      <span class="big">≥80%</span>
+      <p class="desc">약관 위험 조항 탐지율 (전문가 검토 대비)</p>
+    </div>
+    <div class="stat-card purple">
+      <span class="big">≥85%</span>
+      <p class="desc">피싱 탐지 True Positive Rate</p>
+    </div>
+    <div class="stat-card orange">
+      <span class="big">≥70%</span>
+      <p class="desc">단위 테스트 커버리지</p>
+    </div>
+    <div class="stat-card red">
+      <span class="big">0건</span>
+      <p class="desc">원문 PII / 분석 텍스트 서버 전송</p>
+    </div>
+  </div>
+
+  <div class="vision-statement">
+    <p>
+      <strong>1명의 사용자가 Guardian AI를 사용할 때마다</strong><br>
+      72분 약관 검토 시간 → 30초로 단축 · PII 노출 사전 차단 · 스미싱 피해 사전 탐지 및 방어
+    </p>
   </div>
 </section>
 
