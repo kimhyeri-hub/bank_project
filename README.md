@@ -161,7 +161,7 @@ lib/
 ## 금융 pdf 사이트 
 신한은행 https://www.shinhancard.com/mob/MOBFM12051N/MOBFM12051R01.shc
 
-##깃허브페이지
+## 깃허브페이지
 file:///C:/Users/hyyyr/claude_project/docs/index.html#
 
 
