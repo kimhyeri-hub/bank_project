@@ -104,13 +104,16 @@
 >
 > 빌드는 `flutter build apk --release`로 Android 릴리즈 APK를 만들고, 서명·버전관리·
 > 롤백 절차까지 `docs/deploy.md`에 정리했습니다. GitHub 저장소에는 5분 안에 실행까지
-> 갈 수 있는 `README.md`와 `docs/setup.md` 설치 가이드를 두었고, AI 협업 규칙은
-> `AGENTS.md`에 별도로 정리했습니다."
+> 갈 수 있는 `README.md`와 `docs/setup.md` 설치 가이드를 두었고, 제 나름의 기법으로
+> 기획 문서 위치·ADR·슬래시 커맨드·`lessons/` 위키 규칙까지 `AGENTS.md` 한 파일에
+> 통합해서, AI 에이전트가 이 파일 하나만 보면 프로젝트 전체 컨텍스트를 파악하도록
+> 만들었습니다."
 
 - [x] 개발 환경 설정은 어떻게 하였는가 (질의응답)
 - [x] 빌드와 배포는 어떤 단계로 이루어지는가 (질의응답)
 - [x] 개발환경 구성에 대해서 설명
 - [x] GitHub 등 설치 가이드 준비 + 표현
+- [x] 가산점 — 본인만의 기법(agent/skills/rules/commands를 `AGENTS.md` 한 파일에 통합) 설명
 
 ---
 

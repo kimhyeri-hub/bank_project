@@ -22,10 +22,10 @@ Guardian AI는 약관 위험 조항 분석 + 피싱 탐지를 제공하는 Flutt
 
 ## 2. 아키텍처 & ADR (질의응답 대비)
 
-- `docs/architecture.md` — 레이어 구조(Presentation/Application/Domain/Data), 데이터 흐름, 의존 방향 규칙
+- `docs/architecture.md` — 레이어 구조(Presentation/Services 2계층), 데이터 흐름, 의존 방향 규칙
 - `.planning/decisions/` — ADR 5건
   - ADR-0001 모바일 프레임워크: Flutter
-  - ADR-0002 상태 관리: Provider
+  - ADR-0002 상태 관리: setState (Provider는 검토 후 MVP 범위에서 보류 — 추가 노트 참고)
   - ADR-0003 백엔드: 없음 (Claude API 직접 호출, Privacy First)
   - ADR-0004 인증: 없음 (로컬 전용, 데이터 미수집)
   - ADR-0005 배포 채널: APK 사이드로드
