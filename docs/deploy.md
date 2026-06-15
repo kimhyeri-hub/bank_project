@@ -173,7 +173,7 @@ version: 1.0.0+1   # 형식: MAJOR.MINOR.PATCH+빌드번호
 ```
 [ ] flutter clean && flutter build apk --release 성공
 [ ] 실기기 설치 완료
-[ ] 온보딩 → PII → 약관 → 피싱 전체 흐름 오류 없이 통과
+[ ] 홈 → 약관 분석 → 피싱 탐지 전체 흐름 오류 없이 통과
 [ ] Claude API 호출 성공 (핫스팟 연결 상태에서 테스트)
 [ ] 데모 예시 텍스트 앱 내 "예시 불러오기" 버튼으로 탑재 확인
 [ ] 예비 데모 영상(docs/demo_video.mp4) 존재 여부 확인

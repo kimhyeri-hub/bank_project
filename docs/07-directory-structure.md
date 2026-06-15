@@ -19,7 +19,6 @@ guardian_ai/
 │   │   ├── screens/
 │   │   │   ├── onboarding_screen.dart
 │   │   │   ├── home_screen.dart
-│   │   │   ├── pii_screen.dart
 │   │   │   ├── tos_input_screen.dart
 │   │   │   ├── tos_result_screen.dart
 │   │   │   ├── phishing_screen.dart
@@ -33,20 +32,16 @@ guardian_ai/
 │   │
 │   ├── application/                       # [Layer 2] ViewModel · UseCase
 │   │   └── view_models/
-│   │       ├── pii_notifier.dart
 │   │       ├── tos_notifier.dart
 │   │       ├── phishing_notifier.dart
 │   │       └── history_notifier.dart
 │   │
 │   ├── domain/                            # [Layer 3] Entity · Service · Rule
 │   │   ├── entities/                      # 순수 데이터 모델 (외부 의존 없음)
-│   │   │   ├── pii_result.dart
 │   │   │   ├── tos_report.dart
 │   │   │   ├── phishing_result.dart
 │   │   │   └── analysis_history.dart
 │   │   └── services/                      # 핵심 비즈니스 규칙 (순수 Dart)
-│   │       ├── pii_detector.dart          # 정규식 PII 탐지 엔진
-│   │       ├── masking_utils.dart         # 마스킹 강도 조절
 │   │       ├── tos_prompt.dart            # 약관 분석 프롬프트 설계
 │   │       ├── tos_parser.dart            # API 응답 → TosReport 파싱
 │   │       ├── url_analyzer.dart          # URL 구조 분석
@@ -56,13 +51,11 @@ guardian_ai/
 │   │
 │   └── data/                              # [Layer 4] Repository · API · DB
 │       ├── repositories/                  # 데이터 소스 추상화 · 조율
-│       │   ├── pii_repository.dart
 │       │   ├── tos_repository.dart        # 청킹 + API 호출 + 결과 병합
 │       │   ├── phishing_repository.dart
 │       │   └── history_repository.dart
 │       ├── api/                           # 외부 API 클라이언트
 │       │   ├── claude_client.dart
-│       │   ├── pii_ai_service.dart
 │       │   ├── tos_ai_service.dart
 │       │   ├── phishing_ai_service.dart
 │       │   └── virustotal_client.dart
@@ -72,11 +65,10 @@ guardian_ai/
 │
 ├── test/
 │   ├── domain/
-│   │   ├── pii_detector_test.dart
 │   │   ├── tos_parser_test.dart
 │   │   └── url_analyzer_test.dart
 │   ├── application/
-│   │   └── pii_notifier_test.dart
+│   │   └── tos_notifier_test.dart
 │   └── integration/
 │       └── claude_api_test.dart           # 수동 실행 전용
 │
@@ -129,13 +121,11 @@ void main() {
         // [Data] Repository
         Provider(create: (_) => ClaudeClient()),
         Provider(create: (_) => LocalDb()),
-        Provider(create: (ctx) => PiiRepository(ctx.read())),
         Provider(create: (ctx) => TosRepository(ctx.read())),
         Provider(create: (ctx) => PhishingRepository(ctx.read())),
         Provider(create: (ctx) => HistoryRepository(ctx.read())),
 
         // [Application] ViewModel
-        ChangeNotifierProvider(create: (ctx) => PiiNotifier(ctx.read())),
         ChangeNotifierProvider(create: (ctx) => TosNotifier(ctx.read())),
         ChangeNotifierProvider(create: (ctx) => PhishingNotifier(ctx.read())),
         ChangeNotifierProvider(create: (ctx) => HistoryNotifier(ctx.read())),
@@ -152,13 +142,13 @@ void main() {
 
 | 종류 | 규칙 | 예시 |
 |------|------|------|
-| Screen | `*_screen.dart` | `pii_screen.dart` |
-| ViewModel | `*_notifier.dart` | `pii_notifier.dart` |
-| Entity | `*_result/report/history.dart` | `pii_result.dart` |
-| Domain Service | 역할 명사 | `pii_detector.dart` |
-| Repository | `*_repository.dart` | `pii_repository.dart` |
+| Screen | `*_screen.dart` | `tos_screen.dart` |
+| ViewModel | `*_notifier.dart` | `tos_notifier.dart` |
+| Entity | `*_result/report/history.dart` | `tos_report.dart` |
+| Domain Service | 역할 명사 | `tos_parser.dart` |
+| Repository | `*_repository.dart` | `tos_repository.dart` |
 | API Client | `*_client/service.dart` | `claude_client.dart` |
-| Test | 대상 파일명 + `_test.dart` | `pii_detector_test.dart` |
+| Test | 대상 파일명 + `_test.dart` | `tos_parser_test.dart` |
 
 > 모든 파일명은 **snake_case**. Flutter 공식 컨벤션.
 

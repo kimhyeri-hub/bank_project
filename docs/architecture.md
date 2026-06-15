@@ -46,7 +46,6 @@ graph TD
 | `phishing_screen` | URL·문자·이메일 입력 → 피싱 판정 (하단 탭) |
 | `notifications_screen` | 공지사항 목록 (홈에서 Navigator로 진입) |
 | `history_screen` | 약관/피싱 분석 이력 목록 (홈에서 Navigator로 진입) |
-| `pii_screen` | 텍스트 내 PII(주민번호/연락처/이메일) 마스킹 — 실험적 구현, 현재 네비게이션에 연결되지 않음 (향후 확장용) |
 
 `lib/presentation/theme/app_them.dart`에 공통 컬러·테마를 정의합니다.
 
@@ -143,14 +142,14 @@ Presentation → Services → Claude API
 ## `.planning/03-architecture.md`와의 차이점
 
 초기 설계 구상(`.planning/03-architecture.md`)은 Presentation/Application/Domain/Data
-4계층 + Provider + SQLite + 도메인별 분리 파일(`pii_detector.dart`, `tos_prompt.dart`, `risk_scorer.dart` 등)을
+4계층 + Provider + SQLite + 도메인별 분리 파일(`tos_prompt.dart`, `risk_scorer.dart` 등)을
 가정했습니다. 6주 MVP 범위에서는 다음과 같이 축소되었습니다.
 
 - **계층**: 4계층 → Presentation + Services 2계층
 - **상태 관리**: Provider `ChangeNotifier` → `setState` (위 "상태 관리" 절 참고)
 - **로컬 저장소**: SQLite(`local_db`) → `shared_preferences` (`history_service.dart`, `activity_service.dart`)
 - **도메인 로직**: 별도 도메인 파일들 → 각 기능의 Service 파일(`tos_service.dart`, `phishing_service.dart`) 내부에 통합
-- **화면**: `onboarding_screen`, `tos_input_screen`/`tos_result_screen` 분리 → 온보딩 없음, `tos_screen.dart` 하나로 통합. `pii_screen.dart`는 구현되었으나 네비게이션 미연결
+- **화면**: `onboarding_screen`, `tos_input_screen`/`tos_result_screen` 분리 → 온보딩 없음, `tos_screen.dart` 하나로 통합
 
 ---
 

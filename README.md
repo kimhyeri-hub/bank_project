@@ -119,8 +119,7 @@ lib/
 │   │   ├── tos_screen.dart           # 약관 분석
 │   │   ├── phishing_screen.dart      # 피싱 탐지
 │   │   ├── notifications_screen.dart # 공지사항
-│   │   ├── history_screen.dart       # 분석 이력 목록
-│   │   └── pii_screen.dart           # PII 마스킹 (실험적, 미연결)
+│   │   └── history_screen.dart       # 분석 이력 목록
 │   └── theme/
 │       └── app_them.dart             # 앱 테마
 └── services/
