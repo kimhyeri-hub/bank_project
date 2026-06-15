@@ -76,7 +76,14 @@ flutter run --dart-define-from-file=.env.dev # Claude API 연동
 ## 빌드 / 배포
 
 ```bash
+# 디버그 실행
+flutter run --debug
+
+# Android 릴리스 APK
 flutter build apk --release
+
+# iOS 릴리스 (macOS + Xcode 필요)
+flutter build ios --release
 ```
 
 빌드 종류, 서명, 환경별 설정(`.env.dev`/`.env.staging`/`.env.prod`), 버전 관리,
@@ -111,7 +118,9 @@ lib/
 │   │   ├── home_screen.dart          # 홈 (활동 요약)
 │   │   ├── tos_screen.dart           # 약관 분석
 │   │   ├── phishing_screen.dart      # 피싱 탐지
-│   │   └── notifications_screen.dart # 공지사항
+│   │   ├── notifications_screen.dart # 공지사항
+│   │   ├── history_screen.dart       # 분석 이력 목록
+│   │   └── pii_screen.dart           # PII 마스킹 (실험적, 미연결)
 │   └── theme/
 │       └── app_them.dart             # 앱 테마
 └── services/
@@ -120,7 +129,9 @@ lib/
     ├── notification_service.dart     # 공지사항 관리
     ├── claude_service.dart           # Claude API 공통 클라이언트
     ├── tos_service.dart              # 약관 분석 (청킹 + Claude)
-    └── phishing_service.dart         # 피싱 탐지 (로컬 + Claude)
+    ├── phishing_service.dart         # 피싱 탐지 (로컬 + Claude)
+    ├── document_service.dart         # PDF 텍스트 추출
+    └── web_file_picker*.dart         # 웹 PDF 파일 선택 (조건부 export)
 ```
 
 <br>

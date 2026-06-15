@@ -30,6 +30,23 @@ flutter test test/integration/analysis_scenario_test.dart
 
 ---
 
+## 2-1. 커버리지 측정
+
+```bash
+flutter test --coverage
+```
+
+결과는 `coverage/lcov.info`에 생성됩니다 (`.gitignore`에 포함되어 커밋되지 않음).
+
+HTML 리포트로 보기 (lcov 필요):
+```bash
+# macOS: brew install lcov / Ubuntu: sudo apt install lcov
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html   # macOS, 윈도우는 탐색기에서 직접 열기
+```
+
+---
+
 ## 3. 단위 테스트 목록 (총 10개)
 
 ### PhishingService (`test/phishing_service_test.dart`) — 5개

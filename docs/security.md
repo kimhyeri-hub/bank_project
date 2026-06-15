@@ -11,7 +11,7 @@
 |------|------|------|
 | API 키가 코드에 하드코딩되어 있지 않은가 | ✅ | `lib/services/claude_service.dart`에서 `String.fromEnvironment('ANTHROPIC_API_KEY')`로 빌드 시점에 주입. 코드에 키 문자열 없음 |
 | `.gitignore`에 `.env`, 인증서, keystore 포함 | ✅ | `.gitignore`에 `.env*`, `android/key.properties`, `*.keystore`, `*.jks` 추가 (`.env.*.example`만 예외) |
-| 사용자 입력 검증 (XSS / SQLi / 경로 탈출) | ✅ | 로컬 DB·SQL 미사용(`shared_preferences`만 사용), 서버/웹뷰 없이 입력 텍스트는 `jsonEncode`로 이스케이프되어 Claude API에 전달. 파일 경로를 입력받아 처리하는 로직 없음 |
+| 사용자 입력 검증 (XSS / SQLi / 경로 탈출) | ✅ | 로컬 DB·SQL 미사용(`shared_preferences`만 사용), 입력 텍스트는 `jsonEncode`로 이스케이프되어 Claude API에 전달. PDF는 바이트 배열로만 처리되어 파일 경로 입력 없음. URL 약관 분석은 입력 URL로 직접 네트워크 요청을 보내지 않고 데모 결과를 반환하므로 SSRF 위험 없음 |
 | 통신 HTTPS 강제 | ✅ | `ClaudeService._baseUrl = 'https://api.anthropic.com/v1/messages'`. 코드 내 `http://` 호출 없음 (피싱 탐지 화면의 `http://bit.ly/...`는 데모용 예시 텍스트일 뿐 실제 요청 아님) |
 | 로컬 저장 민감정보 암호화 | ⚠️ 미적용 | `lib/services/history_service.dart`가 분석 이력(`input`, `resultSummary`)을 `shared_preferences`에 평문 저장. 서버 전송은 없으나 기기 내 평문 저장 — 발표 시 "향후 개선 과제"로 안내 권장 (예: `flutter_secure_storage` 도입) |
 | 로그에 비밀번호 / 토큰 출력 안됨 | ✅ | `lib/` 전체에 `print`/`debugPrint`로 키·토큰을 출력하는 코드 없음 (`grep -rn "print("` 결과 없음) |

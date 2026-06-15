@@ -80,8 +80,8 @@ tar -xvf android-studio-*.tar.gz -C ~/
 ## 2. 클론
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/guardian_ai.git
-cd guardian_ai
+git clone https://github.com/kimhyeri-hub/bank_project.git
+cd bank_project
 ```
 
 ---
