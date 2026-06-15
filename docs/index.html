@@ -823,102 +823,84 @@
 
   <div class="arch-section">
     <h3>전체 시스템 구조</h3>
-    <p class="arch-desc">온디바이스 처리와 Anthropic Claude API 직접 호출의 조합으로 Privacy First를 구현합니다.</p>
+    <p class="arch-desc">온디바이스 처리와 Anthropic Claude API 직접 호출의 조합으로 Privacy First를 구현합니다. 별도 백엔드 없이 2개 레이어(Presentation / Services)로 구성됩니다.</p>
     <div class="mermaid">
 graph TB
     subgraph Device["📱 사용자 디바이스 (On-Device)"]
         subgraph App["Flutter App"]
-            UI["UI Layer<br/>(Screens / Widgets)"]
-            BL["Business Logic Layer<br/>(Services / Use Cases)"]
-            DATA["Data Layer<br/>(Models / Local DB)"]
-            UI -->|User Action| BL
-            BL -->|Query / Persist| DATA
-            DATA -->|Result| BL
-            BL -->|State Update| UI
+            UI["Presentation<br/>(Screens · StatefulWidget + setState)"]
+            SVC["Services<br/>(API 호출 · 로컬 분석 · 로컬 저장)"]
+            UI -->|입력 / 콜백| SVC
+            SVC -->|결과 반영| UI
         end
     end
     subgraph External["☁️ 외부 서비스"]
         CLAUDE["Anthropic<br/>Claude API"]
-        VTOTAL["VirusTotal API<br/>(무료 한도 내)"]
     end
-    BL -->|HTTPS / JSON| CLAUDE
-    BL -->|URL 조회| VTOTAL
-    CLAUDE -->|분석 결과| BL
-    VTOTAL -->|위험 판정| BL
-    </div>
-  </div>
-
-  <div class="arch-section">
-    <h3>PII 탐지 파이프라인</h3>
-    <p class="arch-desc">정규식 로컬 엔진이 1차 처리 → 미탐 의심 케이스만 Claude API 보조 인식. API 비용 최소화 + 오프라인 동작 가능.</p>
-    <div class="mermaid">
-flowchart LR
-    INPUT["텍스트 입력"] --> REGEX["정규식 엔진<br/>pii_detector.dart"]
-    REGEX --> MASK["마스킹 적용<br/>masking_utils.dart"]
-    REGEX -->|미탐 의심 케이스| API["Claude API<br/>pii_ai_service.dart"]
-    API --> MERGE["결과 병합"]
-    MASK --> OUTPUT["마스킹 결과 출력"]
-    MERGE --> OUTPUT
+    SVC -->|HTTPS / JSON| CLAUDE
+    CLAUDE -->|분석 결과| SVC
     </div>
   </div>
 
   <div class="arch-section">
     <h3>약관 분석 파이프라인 — 청킹 전략</h3>
-    <p class="arch-desc">긴 약관도 조항 단위로 분할해 병렬 API 호출. 위험 조항을 🔴위험 / 🟡주의 / 🟢안전 3단계로 분류합니다.</p>
+    <p class="arch-desc">PDF/URL/텍스트로 입력받아 4,000자 단위로 청킹 후 API 호출. 위험 조항을 🔴위험 / 🟡주의 / 🟢안전 3단계로 분류합니다.</p>
     <div class="mermaid">
 flowchart TD
-    RAW["원문 약관 텍스트"] --> CHECK{"길이 확인<br/>≤ 4,000자?"}
+    RAW["원문 약관 텍스트<br/>(PDF / URL / 직접 입력)"] --> CHECK{"길이 확인<br/>≤ 4,000자?"}
     CHECK -->|예| SINGLE["단일 API 호출"]
-    CHECK -->|아니오| CHUNK["조항 단위 분할<br/>(빈 줄 / 제N조 기준)"]
-    CHUNK --> MULTI["청크별 API 병렬 호출"]
-    SINGLE --> PARSE["응답 파싱<br/>tos_parser.dart"]
-    MULTI --> MERGE2["결과 병합<br/>(위험 조항 중복 제거)"]
+    CHECK -->|아니오| CHUNK["4,000자 단위 청킹"]
+    CHUNK --> MULTI["청크별 순차 API 호출"]
+    SINGLE --> PARSE["JSON 응답 파싱<br/>TosService"]
+    MULTI --> MERGE2["청크 결과 병합<br/>(위험 조항 누적)"]
     MERGE2 --> PARSE
-    PARSE --> REPORT["RiskReport 생성<br/>🔴위험 / 🟡주의 / 🟢안전"]
+    PARSE --> REPORT["TosReport 생성<br/>🔴위험 / 🟡주의 / 🟢안전"]
     </div>
   </div>
 
   <div class="arch-section">
     <h3>피싱 탐지 파이프라인</h3>
-    <p class="arch-desc">URL 구조 분석 + 스미싱 패턴 + Claude API 문맥 분석을 종합해 위험 점수를 산출합니다.</p>
+    <p class="arch-desc">로컬 1차 판정(키워드·단축 URL·의심 도메인) 후 Claude API로 2차 문맥 분석, 미설정/오류 시 로컬 판정으로 자동 fallback합니다.</p>
     <div class="mermaid">
 flowchart TD
-    INPUT2["URL 또는 문자 입력"] --> STRUCT["URL 구조 분석<br/>url_analyzer.dart"]
-    INPUT2 --> PATTERN["스미싱 패턴 매칭<br/>smishing_patterns.dart"]
-    STRUCT --> EXPAND["단축 URL 추적<br/>url_expander.dart"]
-    EXPAND --> VTOTAL2["VirusTotal API<br/>(한도 내)"]
-    PATTERN --> SCORE["위험 점수 산출<br/>phishing_result.dart"]
-    VTOTAL2 --> SCORE
-    STRUCT --> API2["Claude API<br/>문맥 분석"]
-    API2 --> SCORE
-    SCORE --> OUTPUT2{"종합 위험도<br/>임계값 판정"}
-    OUTPUT2 -->|≥ 7| DANGER["🔴 위험 경고 다이얼로그"]
-    OUTPUT2 -->|4~6| WARN["🟡 주의 안내"]
-    OUTPUT2 -->|≤ 3| SAFE["🟢 안전 표시"]
+    INPUT2["URL / 문자 / 이메일 입력"] --> LOCAL["로컬 1차 판정<br/>PhishingService<br/>(키워드 · 단축 URL · 의심 도메인)"]
+    LOCAL --> API2{"Claude API<br/>설정됨?"}
+    API2 -->|예| CTX["Claude API<br/>2차 문맥 분석"]
+    API2 -->|아니오 / 오류| FALLBACK["로컬 판정 결과로 fallback"]
+    CTX --> SCORE["종합 위험도 판정"]
+    FALLBACK --> SCORE
+    SCORE -->|위험| DANGER["🔴 위험 경고"]
+    SCORE -->|주의| WARN["🟡 주의 안내"]
+    SCORE -->|안전| SAFE["🟢 안전 표시"]
     </div>
   </div>
 
   <h3 style="margin-top:2.5rem; margin-bottom:1rem; font-size:1rem; font-weight:700;">핵심 아키텍처 결정 (ADR)</h3>
   <div class="adr-grid">
     <div class="adr-card">
-      <div class="adr-tag">ADR-001</div>
+      <div class="adr-tag">ADR-0001</div>
+      <div class="adr-title">모바일 플랫폼: Flutter</div>
+      <div class="adr-desc">1인 개발 + 6주 일정에서 Android/iOS를 동시에 지원하기 위해 단일 코드베이스를 선택.</div>
+    </div>
+    <div class="adr-card">
+      <div class="adr-tag">ADR-0002</div>
+      <div class="adr-title">상태 관리: setState (Provider는 검토 후 보류)</div>
+      <div class="adr-desc">화면 3개(홈/약관/피싱) 규모의 MVP에서는 화면 간 상태 공유 요구가 거의 없어 setState로 충분. 앱 규모가 커지면 Provider 마이그레이션 경로를 따름.</div>
+    </div>
+    <div class="adr-card">
+      <div class="adr-tag">ADR-0003</div>
       <div class="adr-title">백엔드 없이 Flutter + Claude API 직접 호출</div>
-      <div class="adr-desc">6주 일정 내 서버 구축·운영 비용 제거. 사용자 데이터 서버 저장 금지 원칙과 일치. API 키는 flutter_secure_storage로 보호.</div>
+      <div class="adr-desc">사용자 데이터를 서버에 저장하지 않는다는 Privacy First 원칙과 일치. 6주 일정에서 서버 구축·운영 비용 제거.</div>
     </div>
     <div class="adr-card">
-      <div class="adr-tag">ADR-002</div>
-      <div class="adr-title">상태 관리: Provider (단순) 우선</div>
-      <div class="adr-desc">6주 프로젝트에서 학습 비용 최소화. 기능 3개 수준의 앱 복잡도에 Riverpod/Bloc은 과도한 아키텍처.</div>
+      <div class="adr-tag">ADR-0004</div>
+      <div class="adr-title">인증 없음 (로컬 전용)</div>
+      <div class="adr-desc">로그인 없이 기기 내에서만 동작. 계정 시스템 자체가 공격 표면이 되지 않음.</div>
     </div>
     <div class="adr-card">
-      <div class="adr-tag">ADR-003</div>
-      <div class="adr-title">PII 탐지: 로컬 정규식 1차, Claude API 2차</div>
-      <div class="adr-desc">API 비용 절감 + 3초 이내 처리 성능 요건 달성 + 오프라인 동작 가능. 이름 인식에만 API 활용.</div>
-    </div>
-    <div class="adr-card">
-      <div class="adr-tag">ADR-004</div>
-      <div class="adr-title">로컬 DB: SQLite (sqflite)</div>
-      <div class="adr-desc">Flutter 생태계 표준. 구조화된 쿼리 지원. 히스토리에 결과 요약만 저장, 원문은 미저장.</div>
+      <div class="adr-tag">ADR-0005</div>
+      <div class="adr-title">배포: APK 사이드로드</div>
+      <div class="adr-desc">스토어 심사 없이 발표 당일 즉시 설치해 시연 가능.</div>
     </div>
   </div>
 
@@ -926,12 +908,11 @@ flowchart TD
   <div class="stack-grid">
     <span class="stack-badge"><span class="dot" style="background:#54c5f8"></span>Flutter / Dart</span>
     <span class="stack-badge"><span class="dot" style="background:#6366f1"></span>Claude API (Anthropic)</span>
-    <span class="stack-badge"><span class="dot" style="background:#f59e0b"></span>Provider (상태관리)</span>
-    <span class="stack-badge"><span class="dot" style="background:#10b981"></span>sqflite (SQLite)</span>
-    <span class="stack-badge"><span class="dot" style="background:#ef4444"></span>VirusTotal API</span>
-    <span class="stack-badge"><span class="dot" style="background:#8b5cf6"></span>flutter_secure_storage</span>
-    <span class="stack-badge"><span class="dot" style="background:#06b6d4"></span>GoRouter</span>
-    <span class="stack-badge"><span class="dot" style="background:#9ca3af"></span>Android / iOS</span>
+    <span class="stack-badge"><span class="dot" style="background:#f59e0b"></span>shared_preferences (로컬 저장)</span>
+    <span class="stack-badge"><span class="dot" style="background:#10b981"></span>http (네트워크)</span>
+    <span class="stack-badge"><span class="dot" style="background:#ef4444"></span>syncfusion_flutter_pdf (PDF 추출)</span>
+    <span class="stack-badge"><span class="dot" style="background:#8b5cf6"></span>file_picker (PDF 선택)</span>
+    <span class="stack-badge"><span class="dot" style="background:#9ca3af"></span>Android / iOS / Web</span>
   </div>
 </section>
 

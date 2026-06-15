@@ -1,88 +1,51 @@
 # Guardian AI — Flutter 디렉토리 구조
 
-> 전략: **Layered Architecture** (레이어별 묶음)  
-> 상태 관리: **Provider** (ChangeNotifier)  
-> 레이어 원칙: Presentation → Application → Domain → Data
+> 전략: **Presentation + Services 2계층**
+> 상태 관리: **StatefulWidget + setState** (Provider는 ADR-0002에서 검토 후 보류)
+> 레이어 원칙: Presentation → Services → Claude API (단방향)
 
 ---
 
 ## 구조 한 눈에 보기
 
 ```
-guardian_ai/
+lib/
 │
-├── lib/
-│   ├── main.dart                          # 앱 진입점, MultiProvider 루트
-│   ├── app.dart                           # MaterialApp, 테마, 라우터 연결
-│   │
-│   ├── presentation/                      # [Layer 1] UI · Screen · Widget
-│   │   ├── screens/
-│   │   │   ├── onboarding_screen.dart
-│   │   │   ├── home_screen.dart
-│   │   │   ├── tos_input_screen.dart
-│   │   │   ├── tos_result_screen.dart
-│   │   │   ├── phishing_screen.dart
-│   │   │   └── history_screen.dart
-│   │   ├── widgets/                       # 재사용 공통 위젯
-│   │   │   ├── risk_badge.dart
-│   │   │   ├── danger_alert_dialog.dart
-│   │   │   └── loading_overlay.dart
-│   │   └── theme/
-│   │       └── app_theme.dart             # 다크/라이트 테마 토큰
-│   │
-│   ├── application/                       # [Layer 2] ViewModel · UseCase
-│   │   └── view_models/
-│   │       ├── tos_notifier.dart
-│   │       ├── phishing_notifier.dart
-│   │       └── history_notifier.dart
-│   │
-│   ├── domain/                            # [Layer 3] Entity · Service · Rule
-│   │   ├── entities/                      # 순수 데이터 모델 (외부 의존 없음)
-│   │   │   ├── tos_report.dart
-│   │   │   ├── phishing_result.dart
-│   │   │   └── analysis_history.dart
-│   │   └── services/                      # 핵심 비즈니스 규칙 (순수 Dart)
-│   │       ├── tos_prompt.dart            # 약관 분석 프롬프트 설계
-│   │       ├── tos_parser.dart            # API 응답 → TosReport 파싱
-│   │       ├── url_analyzer.dart          # URL 구조 분석
-│   │       ├── url_expander.dart          # 단축 URL 추적
-│   │       ├── smishing_patterns.dart     # 한국어 스미싱 패턴 DB
-│   │       └── risk_scorer.dart           # 종합 위험 점수 산출
-│   │
-│   └── data/                              # [Layer 4] Repository · API · DB
-│       ├── repositories/                  # 데이터 소스 추상화 · 조율
-│       │   ├── tos_repository.dart        # 청킹 + API 호출 + 결과 병합
-│       │   ├── phishing_repository.dart
-│       │   └── history_repository.dart
-│       ├── api/                           # 외부 API 클라이언트
-│       │   ├── claude_client.dart
-│       │   ├── tos_ai_service.dart
-│       │   ├── phishing_ai_service.dart
-│       │   └── virustotal_client.dart
-│       └── local/                         # 로컬 저장소 (슬라이드 기준)
-│           ├── local_db.dart              # SQLite 초기화 · CRUD
-│           └── cache_service.dart         # 입력 해시 기반 응답 캐싱
+├── main.dart                              # 앱 진입점
+├── app.dart                               # MaterialApp, 테마, 하단 네비게이션
 │
-├── test/
-│   ├── domain/
-│   │   ├── tos_parser_test.dart
-│   │   └── url_analyzer_test.dart
-│   ├── application/
-│   │   └── tos_notifier_test.dart
-│   └── integration/
-│       └── claude_api_test.dart           # 수동 실행 전용
+├── presentation/                          # [Layer 1] UI · Screen
+│   ├── screens/
+│   │   ├── home_screen.dart               # 홈 — 활동 요약 대시보드
+│   │   ├── tos_screen.dart                # 약관 분석 — PDF 업로드 / URL / 텍스트 입력
+│   │   ├── phishing_screen.dart           # 피싱 탐지 — URL·문자·이메일 입력
+│   │   ├── notifications_screen.dart      # 공지사항 목록
+│   │   └── history_screen.dart            # 분석 이력 목록
+│   └── theme/
+│       └── app_them.dart                  # 다크/라이트 테마 토큰
 │
-├── .vscode/
-│   └── extensions.json                    # 권장 확장 프로그램
-│
-├── prompts/                               # Claude 프롬프트 로컬 백업
-│   ├── tos_analysis.txt
-│   └── phishing_context.txt
-│
-├── .env                                   # API 키 (Git 제외)
-├── .env.example                           # 키 없는 템플릿 (Git 포함)
-├── .gitignore
-└── pubspec.yaml
+└── services/                              # [Layer 2] API 호출 · 로컬 분석 · 로컬 저장
+    ├── claude_service.dart                # Claude API 공통 HTTP 클라이언트 (complete, isConfigured)
+    ├── tos_service.dart                   # 약관 분석 — 4,000자 청킹 + 프롬프트 + JSON 파싱 + mock
+    ├── phishing_service.dart              # 피싱 1차(로컬 키워드/URL) + 2차(Claude) 판정
+    ├── document_service.dart              # PDF 바이트 → 텍스트 추출 (syncfusion_flutter_pdf)
+    ├── web_file_picker.dart               # 웹 파일 선택 진입점 (조건부 export)
+    ├── web_file_picker_web.dart           # 웹 구현체
+    ├── web_file_picker_stub.dart          # 비-웹 플랫폼 스텁
+    ├── history_service.dart               # 분석 이력 저장/조회 (shared_preferences, 최대 20건)
+    ├── activity_service.dart              # 사용 통계 (분석/검사 횟수)
+    └── notification_service.dart          # 공지사항 데이터 및 읽음 상태
+
+test/
+├── widget_test.dart                       # 화면 렌더링 위젯 테스트
+├── tos_service_test.dart                  # 약관 분석 단위 테스트
+├── phishing_service_test.dart             # 피싱 판정 단위 테스트
+└── integration/
+    └── analysis_scenario_test.dart        # 분석 전체 흐름 통합 테스트
+
+.env / .env.example                        # API 키 (Git 제외 / 템플릿)
+.gitignore
+pubspec.yaml
 ```
 
 ---
@@ -91,50 +54,23 @@ guardian_ai/
 
 | 레이어 | 경로 | 역할 | 외부 의존 |
 |--------|------|------|---------|
-| Presentation | `lib/presentation/` | 화면 렌더링, 사용자 입력 수신 | Flutter SDK |
-| Application | `lib/application/` | 상태 관리, 흐름 조율 | Provider |
-| Domain | `lib/domain/` | 비즈니스 규칙, 핵심 로직 | **없음** (순수 Dart) |
-| Data | `lib/data/` | API 호출, DB 읽기/쓰기 | http, sqflite |
+| Presentation | `lib/presentation/` | 화면 렌더링, 사용자 입력 수신, `setState`로 상태 관리 | Flutter SDK |
+| Services | `lib/services/` | API 호출, 로컬 판정/분석, 로컬 저장 | `http`, `shared_preferences`, `syncfusion_flutter_pdf`, `file_picker` |
+
+각 기능의 결과 모델(`TosReport`, `PhishingResult` 등)과 핵심 로직(청킹, 파싱, 점수 산출)은
+별도 도메인 파일로 분리하지 않고 해당 Service 파일 내부에 함께 정의합니다.
 
 ---
 
 ## 의존 방향 규칙
 
 ```
-Presentation → Application → Domain ← Data
-                              (Entity)
+Presentation → Services → Claude API
 ```
 
-- 위에서 아래로만 의존. **역방향 금지**
-- `Domain`은 아무것도 import하지 않는다 → 단위 테스트가 가장 쉬운 레이어
-- `Data`는 `Domain`의 Entity만 참조 가능
-
----
-
-## Provider 연결 구조 (`main.dart`)
-
-```dart
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        // [Data] Repository
-        Provider(create: (_) => ClaudeClient()),
-        Provider(create: (_) => LocalDb()),
-        Provider(create: (ctx) => TosRepository(ctx.read())),
-        Provider(create: (ctx) => PhishingRepository(ctx.read())),
-        Provider(create: (ctx) => HistoryRepository(ctx.read())),
-
-        // [Application] ViewModel
-        ChangeNotifierProvider(create: (ctx) => TosNotifier(ctx.read())),
-        ChangeNotifierProvider(create: (ctx) => PhishingNotifier(ctx.read())),
-        ChangeNotifierProvider(create: (ctx) => HistoryNotifier(ctx.read())),
-      ],
-      child: const MyApp(),
-    ),
-  );
-}
-```
+- Presentation은 필요한 Service를 직접 생성/호출한다 (`setState`로 결과 반영)
+- Services는 Presentation을 참조하지 않는다 (역방향 금지)
+- Services 간 단방향 참조는 허용 (예: `tos_service` → `claude_service`)
 
 ---
 
@@ -143,15 +79,12 @@ void main() {
 | 종류 | 규칙 | 예시 |
 |------|------|------|
 | Screen | `*_screen.dart` | `tos_screen.dart` |
-| ViewModel | `*_notifier.dart` | `tos_notifier.dart` |
-| Entity | `*_result/report/history.dart` | `tos_report.dart` |
-| Domain Service | 역할 명사 | `tos_parser.dart` |
-| Repository | `*_repository.dart` | `tos_repository.dart` |
-| API Client | `*_client/service.dart` | `claude_client.dart` |
-| Test | 대상 파일명 + `_test.dart` | `tos_parser_test.dart` |
+| Service | `*_service.dart` | `tos_service.dart` |
+| 조건부 export (웹/비웹) | `*_web.dart` / `*_stub.dart` | `web_file_picker_web.dart` |
+| Test | 대상 파일명 + `_test.dart` | `tos_service_test.dart` |
 
 > 모든 파일명은 **snake_case**. Flutter 공식 컨벤션.
 
 ---
 
-*연관 문서: `docs/architecture.md`, `ADR-0002-state-management-provider.md`*
+*연관 문서: `docs/architecture.md` (레이어/데이터 흐름 상세), `.planning/decisions/ADR-0002-state-management.md` (상태 관리 결정 근거)*
