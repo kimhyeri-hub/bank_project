@@ -148,9 +148,5 @@ lib/
 
 <br>
 
-## 향후 계획
-
-- [ ] 로컬 히스토리 암호화 저장 (`flutter_secure_storage` 도입)
-- [ ] OCR 기반 카메라 촬영 약관 인식
-- [ ] 실제 피싱 DB 연동 탐지 고도화
-- [ ] Android/iOS 배포 산출물(apk/ipa) 빌드 및 실기기 설치 검증
+## 금융 pdf 사이트 
+신한은행 https://www.shinhancard.com/mob/MOBFM12051N/MOBFM12051R01.shc
